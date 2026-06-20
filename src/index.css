@@ -1,0 +1,61 @@
+/* Wise Sans (fuente real de los títulos/números de Wise, peso Heavy) */
+@font-face {
+  font-family: 'Wise Sans';
+  src: url('/fonts/WiseSans-Heavy.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-bg-screen text-content-secondary font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5 {
+    @apply text-content-primary;
+  }
+}
+
+@layer components {
+  .container-wise {
+    @apply mx-auto w-full max-w-wise px-5 sm:px-8 lg:px-10;
+  }
+
+  /* Botones estilo Wise */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-pill font-semibold transition-colors duration-150 text-base whitespace-nowrap;
+  }
+  .btn-primary {
+    @apply btn bg-bright-green text-forest px-6 py-3 hover:bg-bright-green-hover;
+  }
+  .btn-dark {
+    @apply btn bg-forest text-bright-green px-6 py-3 hover:bg-forest-dark;
+  }
+  .btn-outline {
+    @apply btn border border-content-primary/30 text-content-primary px-6 py-3 hover:border-content-primary;
+  }
+  .btn-link {
+    @apply inline-flex items-center gap-1 font-semibold text-content-primary underline underline-offset-4 decoration-from-font hover:text-forest;
+  }
+
+  /* Títulos display al estilo Wise Sans */
+  .display-hero {
+    @apply font-display font-black uppercase leading-[0.95] tracking-[-0.01em] text-content-primary;
+    font-size: clamp(2.75rem, 6vw, 4.25rem);
+  }
+  .display-h2 {
+    @apply font-display font-extrabold leading-[1.05] tracking-[-0.01em] text-content-primary;
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+  }
+  .display-h2-caps {
+    @apply font-display font-black uppercase leading-[1] tracking-[-0.01em];
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+  }
+}
