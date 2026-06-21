@@ -1,14 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from '../components/Icon.jsx'
 
-// Banderas que ruedan horizontalmente según el scroll (como en wise.com).
+// Banderas que ruedan con el scroll (como en wise.com).
+// La flecha va EMBEBIDA dentro del extremo derecho de la barra verde; toda la
+// fila se desplaza junta y las banderas giran como ruedas.
 const flags = ['co', 'eu', 'gb', 'us', 'in', 'my', 'rs', 'br', 'au', 'jp', 'mx', 'es', 'ca', 'fr', 'it', 'kr']
 
-const MOVE = 560 // px totales que recorren las banderas durante el scroll
+const SIZE = 150 // diámetro de las banderas
+const ARROW = 122 // círculo de la flecha (dentro de la barra)
+const BAR_W = 2400 // ancho de la barra (sobresale por la izquierda)
+const PAD_R = 14 // verde a la derecha de la flecha (extremo redondeado)
+// centro de la flecha medido desde el origen de la fila
+const ARROW_OFFSET = BAR_W - PAD_R - ARROW / 2
+const START = 0.04 // posición de la flecha (fracción del viewport) al entrar (pegada a la izq.)
+const END = 0.48 // posición al salir
 
 export default function FlagStrip() {
   const ref = useRef(null)
-  const [tx, setTx] = useState(-MOVE)
+  const [tx, setTx] = useState(() => (typeof window !== 'undefined' ? START * window.innerWidth : 80))
+  const [rot, setRot] = useState(0)
 
   useEffect(() => {
     let raf = 0
@@ -17,11 +27,14 @@ export default function FlagStrip() {
       if (!el) return
       const rect = el.getBoundingClientRect()
       const vh = window.innerHeight || 1
+      const vw = window.innerWidth || 1
       // progreso 0→1 mientras la sección cruza el viewport (bajar = aumenta)
       const p = Math.max(0, Math.min(1, (vh - rect.top) / (vh + rect.height)))
-      // siempre ≤ 0: el borde izquierdo de la fila nunca deja hueco tras la flecha.
-      // al bajar (p↑) se desplaza a la derecha; al subir (p↓) vuelve.
-      setTx(MOVE * (p - 1))
+      const nextTx = (START + (END - START) * p) * vw // = posición en pantalla del centro de la flecha
+      const center = ((START + END) / 2) * vw
+      const nextRot = ((nextTx - center) / (SIZE / 2)) * (180 / Math.PI)
+      setTx(nextTx)
+      setRot(nextRot)
     }
     const onScroll = () => {
       cancelAnimationFrame(raf)
@@ -38,35 +51,38 @@ export default function FlagStrip() {
   }, [])
 
   return (
-    <section ref={ref} className="overflow-hidden py-12 md:py-20">
-      <div className="flex items-center">
-        {/* Barra verde */}
-        <div className="h-[88px] flex-[1.3] rounded-r-full bg-bright-green" />
-        {/* Flecha */}
-        <span className="z-10 -ml-1 flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full bg-forest text-bright-green">
-          <Icon name="arrowRight" size={36} />
-        </span>
-        {/* Banderas (recortadas: emergen limpias tras la flecha) */}
-        <div className="ml-3 flex flex-1 items-center overflow-hidden self-stretch">
-          <div
-            className="flex items-center gap-4 will-change-transform"
-            style={{ transform: `translate3d(${tx}px, 0, 0)` }}
+    <section ref={ref} className="overflow-hidden py-12 md:py-16">
+      <div
+        className="flex items-center gap-5 will-change-transform"
+        style={{ transform: `translate3d(${tx}px, 0, 0)`, marginLeft: -ARROW_OFFSET }}
+      >
+        {/* Barra verde con la flecha embebida en su extremo derecho */}
+        <div
+          className="flex shrink-0 items-center justify-end rounded-full bg-bright-green"
+          style={{ width: BAR_W, height: SIZE, paddingRight: PAD_R }}
+        >
+          <span
+            className="flex items-center justify-center rounded-full bg-forest text-bright-green"
+            style={{ width: ARROW, height: ARROW }}
           >
-            {flags.concat(flags).map((iso, i) => (
-              <span
-                key={i}
-                className="h-[88px] w-[88px] shrink-0 overflow-hidden rounded-full ring-1 ring-black/5"
-              >
-                <img
-                  src={`https://flagcdn.com/w160/${iso}.png`}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
-              </span>
-            ))}
-          </div>
+            <Icon name="arrowRight" size={46} />
+          </span>
         </div>
+        {/* Banderas (giran con el scroll) */}
+        {flags.concat(flags).map((iso, i) => (
+          <span
+            key={i}
+            className="shrink-0 overflow-hidden rounded-full ring-1 ring-black/5"
+            style={{ width: SIZE, height: SIZE, transform: `rotate(${rot}deg)` }}
+          >
+            <img
+              src={`https://flagcdn.com/w320/${iso}.png`}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          </span>
+        ))}
       </div>
     </section>
   )

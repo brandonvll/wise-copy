@@ -1,0 +1,51 @@
+<!-- ============================================================
+  Plantilla de correo OTP para Wise (Supabase → Magic link or OTP)
+  Pega esto en el campo "Body" (modo Source) cuando tengas SMTP activo.
+  Variables Supabase: {{ .Token }} = código de 6 dígitos, {{ .Email }}
+============================================================ -->
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body style="margin:0;padding:0;background:#f0eeec;font-family:'Inter',Arial,Helvetica,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0eeec;padding:32px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:24px;overflow:hidden;border:1px solid #eceae7;">
+            <!-- Header -->
+            <tr>
+              <td style="background:#163300;padding:26px 32px;">
+                <span style="color:#9FE870;font-size:26px;font-weight:900;letter-spacing:-0.5px;">⟁ wise</span>
+              </td>
+            </tr>
+            <!-- Body -->
+            <tr>
+              <td style="padding:40px 32px;">
+                <h1 style="margin:0 0 12px;color:#0E0F0C;font-size:24px;font-weight:800;">Tu código de verificación</h1>
+                <p style="margin:0 0 28px;color:#454745;font-size:16px;line-height:1.5;">
+                  Usa este código para continuar creando tu cuenta en Wise.
+                </p>
+                <div style="background:#f4f8ef;border:1px solid #9FE870;border-radius:16px;padding:22px;text-align:center;">
+                  <span style="display:inline-block;color:#163300;font-size:38px;font-weight:900;letter-spacing:12px;">{{ .Token }}</span>
+                </div>
+                <p style="margin:28px 0 0;color:#6C6F6C;font-size:14px;line-height:1.5;">
+                  El código caduca en 1 hora y solo puede usarse una vez. Si no solicitaste este código, puedes ignorar este correo.
+                </p>
+              </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+              <td style="padding:22px 32px;border-top:1px solid #eee;">
+                <p style="margin:0;color:#9aa09a;font-size:12px;line-height:1.5;">
+                  Enviado a {{ .Email }} · Wise (proyecto de práctica, sin afiliación con Wise Payments Ltd.)
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
