@@ -37,13 +37,16 @@ function ScrollToTop() {
   return null
 }
 
-// Ruta protegida: requiere sesión activa
+// Ruta protegida: requiere sesión activa Y que el usuario ya haya creado su contraseña.
+// Si tiene sesión pero aún no fija su contraseña (primer acceso por código), lo manda
+// a /login para completar ese paso — así no se puede saltar recargando o navegando.
 function Protected({ children }) {
-  const { session, loading } = useAuth()
+  const { session, user, loading } = useAuth()
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center text-content-tertiary">Cargando…</div>
   }
   if (!session) return <Navigate to="/login" replace />
+  if (!user?.user_metadata?.password_set) return <Navigate to="/login" replace />
   return children
 }
 

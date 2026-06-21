@@ -58,8 +58,7 @@ export default function Admin() {
   const [newTxn, setNewTxn] = useState({ tipo: 'egreso', name: '', amount: '', currency: 'USD', date: today(), afecta: true })
   const [newRec, setNewRec] = useState({ full_name: '', handle: '', currency: 'USD' })
   const [users, setUsers] = useState([])
-  const [newUser, setNewUser] = useState({ email: '', password: '', full_name: '' })
-  const [showPwd, setShowPwd] = useState(false)
+  const [newUser, setNewUser] = useState({ email: '', full_name: '' })
   const [lastCreated, setLastCreated] = useState(null)
   const [preview, setPreview] = useState(null)
   const [creating, setCreating] = useState(false)
@@ -155,16 +154,18 @@ export default function Admin() {
     load()
   }
 
-  // Crear usuario (cliente aislado para no cerrar la sesión del admin)
+  // Crear usuario (cliente aislado para no cerrar la sesión del admin).
+  // La contraseña es aleatoria y nadie la conoce: el usuario entra por código y crea la suya.
   const createUser = async (e) => {
     e.preventDefault()
     setCreating(true)
     setLastCreated(null)
     const tmp = createSignupClient()
+    const tempPassword = crypto.randomUUID() + 'Aa1!'
     const { error } = await tmp.auth.signUp({
       email: newUser.email.trim(),
-      password: newUser.password,
-      options: { data: { full_name: newUser.full_name || null } },
+      password: tempPassword,
+      options: { data: { full_name: newUser.full_name || null, password_set: false } },
     })
     if (error) {
       setCreating(false)
@@ -176,8 +177,8 @@ export default function Admin() {
       email: newUser.email.trim(),
       full_name: newUser.full_name || null,
     })
-    setLastCreated({ email: newUser.email.trim(), password: newUser.password, full_name: newUser.full_name })
-    setNewUser({ email: '', password: '', full_name: '' })
+    setLastCreated({ email: newUser.email.trim(), full_name: newUser.full_name })
+    setNewUser({ email: '', full_name: '' })
     setCreating(false)
     flash('Usuario creado ✓')
     load()
@@ -362,31 +363,23 @@ export default function Admin() {
                 <section className="rounded-card-lg bg-white p-6 shadow-sm">
                   <h2 className="mb-1 text-xl font-bold text-content-primary">Crear usuario</h2>
                   <p className="mb-4 text-sm text-content-secondary">
-                    Crea el correo y contraseña con los que el usuario podrá iniciar sesión. Empezará con su cuenta en 0.
+                    Crea la cuenta con el correo del usuario. En su primer ingreso recibirá un código en su correo y creará su propia contraseña. Empieza con su cuenta en 0.
                   </p>
                   <div className="mb-5 rounded-xl bg-bright-green/20 px-4 py-3 text-sm text-forest">
-                    ⚠️ Para que pueda entrar de inmediato, desactiva “Confirm email” en Supabase → Authentication → Sign In/Providers → Email.
+                    ⚠️ En Supabase: desactiva “Confirm email” (Authentication → Sign In/Providers → Email) y pon el código <b>{'{{ .Token }}'}</b> en la plantilla <b>Magic Link</b> (Email Templates) para que llegue el código de 6 dígitos.
                   </div>
 
                   <form onSubmit={createUser} className="space-y-3">
                     <input value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} placeholder="Nombre (opcional)" className={field} />
                     <input required type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="Correo electrónico" className={field} />
-                    <div className="relative">
-                      <input required minLength={6} type={showPwd ? 'text' : 'password'} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Contraseña (mín. 6)" className={`${field} pr-12`} />
-                      <button type="button" onClick={() => setShowPwd((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary hover:text-content-primary" aria-label="Mostrar/ocultar">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />{!showPwd && <path d="M3 3l18 18" />}
-                        </svg>
-                      </button>
-                    </div>
                     <button type="submit" disabled={creating} className="btn-primary px-6 py-2.5 disabled:opacity-60">{creating ? 'Creando…' : 'Crear usuario'}</button>
                   </form>
 
                   {lastCreated && (
                     <div className="mt-5 rounded-xl border border-bright-green bg-bright-green/10 p-4">
-                      <p className="mb-2 font-bold text-content-primary">Usuario creado ✓ — comparte estos datos:</p>
-                      <p className="text-sm text-content-secondary">Correo: <b className="text-content-primary">{lastCreated.email}</b></p>
-                      <p className="text-sm text-content-secondary">Contraseña: <b className="text-content-primary">{lastCreated.password}</b></p>
+                      <p className="mb-2 font-bold text-content-primary">Usuario creado ✓</p>
+                      <p className="text-sm text-content-secondary">Comparte con el usuario solo su <b className="text-content-primary">correo: {lastCreated.email}</b>.</p>
+                      <p className="mt-1 text-sm text-content-secondary">Indícale: entrar a la app → “Primera vez o ¿olvidaste tu contraseña? Entra con un código” → poner su correo → escribir el código que le llega → crear su contraseña.</p>
                       <button onClick={() => setPreview({ email: lastCreated.email, full_name: lastCreated.full_name })} className="mt-3 flex items-center gap-2 rounded-pill bg-forest px-4 py-2 font-semibold text-bright-green">
                         <Icon name="user" size={16} /> Ver acceso de usuario
                       </button>

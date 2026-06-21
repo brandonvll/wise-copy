@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import AuthHeader from '../components/AuthHeader.jsx'
+import OtpInput from '../components/OtpInput.jsx'
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -20,44 +21,6 @@ const FacebookF = () => (
 const AppleLogo = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="#000" aria-hidden="true"><path d="M17.05 12.5c-.03-2.6 2.12-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.81 0-2.07-.92-3.4-.9-1.75.03-3.36 1.02-4.26 2.58-1.82 3.16-.47 7.83 1.3 10.4.86 1.25 1.89 2.66 3.23 2.61 1.3-.05 1.79-.84 3.36-.84 1.57 0 2.01.84 3.38.81 1.4-.02 2.28-1.27 3.13-2.53.99-1.45 1.4-2.86 1.42-2.93-.03-.01-2.72-1.05-2.75-4.16zM14.6 4.84c.72-.87 1.2-2.08 1.07-3.28-1.03.04-2.28.69-3.02 1.55-.66.77-1.24 2-1.08 3.18 1.15.09 2.32-.58 3.03-1.45z" /></svg>
 )
-
-function OtpInput({ value, onChange, length = 6 }) {
-  const refs = useRef([])
-  const setDigit = (i, v) => {
-    const d = v.replace(/\D/g, '').slice(-1)
-    const arr = value.split('')
-    arr[i] = d
-    onChange(arr.join('').slice(0, length))
-    if (d && i < length - 1) refs.current[i + 1]?.focus()
-  }
-  const onKeyDown = (i, e) => {
-    if (e.key === 'Backspace' && !value[i] && i > 0) refs.current[i - 1]?.focus()
-  }
-  const onPaste = (e) => {
-    const t = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length)
-    if (t) {
-      onChange(t)
-      refs.current[Math.min(t.length, length - 1)]?.focus()
-      e.preventDefault()
-    }
-  }
-  return (
-    <div className="flex justify-center gap-2 sm:gap-3" onPaste={onPaste}>
-      {Array.from({ length }).map((_, i) => (
-        <input
-          key={i}
-          ref={(el) => (refs.current[i] = el)}
-          value={value[i] || ''}
-          onChange={(e) => setDigit(i, e.target.value)}
-          onKeyDown={(e) => onKeyDown(i, e)}
-          inputMode="numeric"
-          maxLength={1}
-          className="h-14 w-11 rounded-xl border-2 border-black/15 text-center text-2xl font-bold text-content-primary outline-none transition-colors focus:border-forest sm:w-12"
-        />
-      ))}
-    </div>
-  )
-}
 
 export default function Register() {
   const { session } = useAuth()
@@ -111,7 +74,7 @@ export default function Register() {
     e.preventDefault()
     setError('')
     setBusy(true)
-    const { error } = await supabase.auth.updateUser({ password })
+    const { error } = await supabase.auth.updateUser({ password, data: { password_set: true } })
     setBusy(false)
     if (error) setError(error.message)
     else navigate('/home')
