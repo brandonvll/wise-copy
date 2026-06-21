@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
+import { supabase, createSignupClient } from '../lib/supabase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
@@ -57,6 +57,12 @@ export default function Admin() {
   const [recipients, setRecipients] = useState([])
   const [newTxn, setNewTxn] = useState({ tipo: 'egreso', name: '', amount: '', currency: 'USD', date: today(), afecta: true })
   const [newRec, setNewRec] = useState({ full_name: '', handle: '', currency: 'USD' })
+  const [users, setUsers] = useState([])
+  const [newUser, setNewUser] = useState({ email: '', password: '', full_name: '' })
+  const [showPwd, setShowPwd] = useState(false)
+  const [lastCreated, setLastCreated] = useState(null)
+  const [preview, setPreview] = useState(null)
+  const [creating, setCreating] = useState(false)
 
   const flash = (m) => {
     setNote(m)
@@ -64,16 +70,18 @@ export default function Admin() {
   }
 
   const load = async () => {
-    const [{ data: p }, { data: a }, { data: t }, { data: r }] = await Promise.all([
+    const [{ data: p }, { data: a }, { data: t }, { data: r }, { data: u }] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('accounts').select('*').eq('user_id', user.id).order('created_at').limit(1).maybeSingle(),
       supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false }),
       supabase.from('recipients').select('*').eq('user_id', user.id).order('full_name'),
+      supabase.from('managed_users').select('*').eq('created_by', user.id).order('created_at', { ascending: false }),
     ])
     setFullName(p?.full_name || '')
     if (a) setAccount({ id: a.id, currency: a.currency, balance: a.balance })
     setTxns(t || [])
     setRecipients(r || [])
+    setUsers(u || [])
     setNewTxn((n) => ({ ...n, currency: a?.currency || 'USD' }))
     setLoading(false)
   }
@@ -147,6 +155,41 @@ export default function Admin() {
     load()
   }
 
+  // Crear usuario (cliente aislado para no cerrar la sesión del admin)
+  const createUser = async (e) => {
+    e.preventDefault()
+    setCreating(true)
+    setLastCreated(null)
+    const tmp = createSignupClient()
+    const { error } = await tmp.auth.signUp({
+      email: newUser.email.trim(),
+      password: newUser.password,
+      options: { data: { full_name: newUser.full_name || null } },
+    })
+    if (error) {
+      setCreating(false)
+      return flash('Error: ' + error.message)
+    }
+    // Registrar (sin contraseña) con la sesión del admin
+    await supabase.from('managed_users').insert({
+      created_by: user.id,
+      email: newUser.email.trim(),
+      full_name: newUser.full_name || null,
+    })
+    setLastCreated({ email: newUser.email.trim(), password: newUser.password, full_name: newUser.full_name })
+    setNewUser({ email: '', password: '', full_name: '' })
+    setCreating(false)
+    flash('Usuario creado ✓')
+    load()
+  }
+
+  const delUser = async (id) => {
+    // Solo elimina el registro de seguimiento (no borra el usuario de Auth)
+    const { error } = await supabase.from('managed_users').delete().eq('id', id)
+    flash(error ? 'Error: ' + error.message : 'Registro eliminado ✓')
+    load()
+  }
+
   const logout = async () => {
     sessionStorage.removeItem('wiseAdminOk')
     await signOut()
@@ -157,6 +200,7 @@ export default function Admin() {
     { id: 'cuenta', label: 'Cuenta', icon: 'bank' },
     { id: 'movimientos', label: 'Movimientos', icon: 'list' },
     { id: 'destinatarios', label: 'Destinatarios', icon: 'users' },
+    { id: 'usuarios', label: 'Usuarios', icon: 'user' },
   ]
 
   return (
@@ -311,9 +355,102 @@ export default function Admin() {
                 )}
               </section>
             )}
+
+            {/* ---------- USUARIOS ---------- */}
+            {tab === 'usuarios' && (
+              <div className="space-y-6">
+                <section className="rounded-card-lg bg-white p-6 shadow-sm">
+                  <h2 className="mb-1 text-xl font-bold text-content-primary">Crear usuario</h2>
+                  <p className="mb-4 text-sm text-content-secondary">
+                    Crea el correo y contraseña con los que el usuario podrá iniciar sesión. Empezará con su cuenta en 0.
+                  </p>
+                  <div className="mb-5 rounded-xl bg-bright-green/20 px-4 py-3 text-sm text-forest">
+                    ⚠️ Para que pueda entrar de inmediato, desactiva “Confirm email” en Supabase → Authentication → Sign In/Providers → Email.
+                  </div>
+
+                  <form onSubmit={createUser} className="space-y-3">
+                    <input value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} placeholder="Nombre (opcional)" className={field} />
+                    <input required type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="Correo electrónico" className={field} />
+                    <div className="relative">
+                      <input required minLength={6} type={showPwd ? 'text' : 'password'} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Contraseña (mín. 6)" className={`${field} pr-12`} />
+                      <button type="button" onClick={() => setShowPwd((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary hover:text-content-primary" aria-label="Mostrar/ocultar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />{!showPwd && <path d="M3 3l18 18" />}
+                        </svg>
+                      </button>
+                    </div>
+                    <button type="submit" disabled={creating} className="btn-primary px-6 py-2.5 disabled:opacity-60">{creating ? 'Creando…' : 'Crear usuario'}</button>
+                  </form>
+
+                  {lastCreated && (
+                    <div className="mt-5 rounded-xl border border-bright-green bg-bright-green/10 p-4">
+                      <p className="mb-2 font-bold text-content-primary">Usuario creado ✓ — comparte estos datos:</p>
+                      <p className="text-sm text-content-secondary">Correo: <b className="text-content-primary">{lastCreated.email}</b></p>
+                      <p className="text-sm text-content-secondary">Contraseña: <b className="text-content-primary">{lastCreated.password}</b></p>
+                      <button onClick={() => setPreview({ email: lastCreated.email, full_name: lastCreated.full_name })} className="mt-3 flex items-center gap-2 rounded-pill bg-forest px-4 py-2 font-semibold text-bright-green">
+                        <Icon name="user" size={16} /> Ver acceso de usuario
+                      </button>
+                    </div>
+                  )}
+                </section>
+
+                <section className="rounded-card-lg bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 text-xl font-bold text-content-primary">Usuarios creados</h2>
+                  {users.length === 0 ? (
+                    <p className="text-content-tertiary">Aún no has creado usuarios.</p>
+                  ) : (
+                    <ul className="divide-y divide-black/5">
+                      {users.map((u) => (
+                        <li key={u.id} className="flex items-center gap-3 py-3">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-neutral font-bold text-content-secondary">{(u.full_name || u.email).charAt(0).toUpperCase()}</span>
+                          <span className="flex-1">
+                            <span className="block font-semibold text-content-primary">{u.full_name || u.email.split('@')[0]}</span>
+                            <span className="block text-sm text-content-tertiary">{u.email}</span>
+                          </span>
+                          <button onClick={() => setPreview({ email: u.email, full_name: u.full_name })} className="rounded-pill border border-black/15 px-4 py-2 font-semibold text-content-primary hover:border-content-primary">Ver acceso</button>
+                          <button onClick={() => delUser(u.id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50" aria-label="Eliminar registro">
+                            <Icon name="arrowRight" size={18} className="rotate-45" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </div>
+            )}
           </>
         )}
       </div>
+
+      {/* Modal: vista previa de primer ingreso */}
+      {preview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5" onClick={() => setPreview(null)}>
+          <div className="w-full max-w-md overflow-hidden rounded-card-lg bg-white" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
+              <span className="font-bold text-content-primary">Así verá su cuenta al ingresar</span>
+              <button onClick={() => setPreview(null)} className="text-content-tertiary hover:text-content-primary" aria-label="Cerrar">
+                <Icon name="arrowRight" size={20} className="rotate-45" />
+              </button>
+            </div>
+            <div className="bg-bg-neutral p-6">
+              {/* mini dashboard */}
+              <div className="mb-4 flex items-center justify-between">
+                <Logo height={20} />
+                <span className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white font-bold text-content-secondary">{(preview.full_name || preview.email).charAt(0).toUpperCase()}</span>
+                  <span className="text-sm font-semibold text-content-primary">{preview.full_name || preview.email.split('@')[0]}</span>
+                </span>
+              </div>
+              <div className="rounded-card bg-white p-5">
+                <p className="mb-1 text-sm text-content-secondary">Cuenta principal</p>
+                <p className="mb-4 text-2xl font-bold text-content-primary">$0.00 USD</p>
+                <div className="rounded-xl bg-bg-neutral py-6 text-center text-sm text-content-tertiary">Sin transacciones todavía</div>
+              </div>
+              <p className="mt-4 text-center text-xs text-content-tertiary">El usuario inicia con saldo en 0. Inicia sesión con sus datos y edita su cuenta desde este panel.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
