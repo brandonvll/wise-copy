@@ -1,19 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
+import { accountNumberFor } from '../lib/account.js'
 import AppLayout from '../components/AppLayout.jsx'
 import Icon from '../components/Icon.jsx'
 
 const FLAG = { USD: 'us', EUR: 'eu', GBP: 'gb', COP: 'co', MXN: 'mx', BRL: 'br' }
-
-// Número de cuenta único y estable por usuario (15 dígitos derivados del id).
-const accountNumberFor = (id = '') => {
-  let out = ''
-  for (let i = 0; i < (id.length || 1); i++) out += String(id.charCodeAt(i) || 0)
-  out = out.replace(/\D/g, '')
-  while (out.length < 15) out += out
-  return out.slice(0, 15)
-}
 
 function Field({ label, value, sub }) {
   const [copied, setCopied] = useState(false)
@@ -45,6 +37,7 @@ export default function AccountDetails() {
   const { id, client, ready, name: viewName } = useViewer()
   const [name, setName] = useState('')
   const [currency, setCurrency] = useState('USD')
+  const [acctNum, setAcctNum] = useState('')
   const [tab, setTab] = useState('Fees')
 
   useEffect(() => {
@@ -52,14 +45,13 @@ export default function AccountDetails() {
     ;(async () => {
       const [{ data: p }, { data: a }] = await Promise.all([
         client.from('profiles').select('full_name').eq('id', id).maybeSingle(),
-        client.from('accounts').select('currency').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
+        client.from('accounts').select('currency, account_number').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
       ])
       setName(p?.full_name || viewName || 'Usuario')
       if (a?.currency) setCurrency(a.currency)
+      setAcctNum(a?.account_number || accountNumberFor(id))
     })()
   }, [id, ready, client, viewName])
-
-  const acctNum = accountNumberFor(id)
 
   return (
     <AppLayout>

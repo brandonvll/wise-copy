@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { adminClient, ensureAdminSession, createSignupClient, usernameToEmail, cleanUsername } from '../lib/supabase.js'
+import { accountNumberFor } from '../lib/account.js'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
 
@@ -65,7 +66,7 @@ export default function Admin() {
   const [tab, setTab] = useState('cuenta')
   const [loadingUser, setLoadingUser] = useState(false)
   const [fullName, setFullName] = useState('')
-  const [account, setAccount] = useState({ id: null, currency: 'USD', balance: 0 })
+  const [account, setAccount] = useState({ id: null, currency: 'USD', balance: 0, account_number: '' })
   const [txns, setTxns] = useState([])
   const [recipients, setRecipients] = useState([])
   const [newTxn, setNewTxn] = useState({ tipo: 'egreso', name: '', amount: '', currency: 'USD', date: today(), afecta: true })
@@ -161,7 +162,9 @@ export default function Admin() {
       adminClient.from('recipients').select('*').eq('user_id', u.user_id).order('full_name'),
     ])
     setFullName(p?.full_name || u.full_name || '')
-    setAccount(a ? { id: a.id, currency: a.currency, balance: a.balance } : { id: null, currency: 'USD', balance: 0 })
+    setAccount(a
+      ? { id: a.id, currency: a.currency, balance: a.balance, account_number: a.account_number || accountNumberFor(u.user_id) }
+      : { id: null, currency: 'USD', balance: 0, account_number: accountNumberFor(u.user_id) })
     setTxns(t || [])
     setRecipients(r || [])
     setNewTxn((n) => ({ ...n, currency: a?.currency || 'USD' }))
@@ -176,7 +179,7 @@ export default function Admin() {
   }
 
   const saveAccount = async () => {
-    const payload = { user_id: selected.user_id, currency: account.currency, balance: Number(account.balance) || 0 }
+    const payload = { user_id: selected.user_id, currency: account.currency, balance: Number(account.balance) || 0, account_number: account.account_number || null }
     const { error } = account.id
       ? await adminClient.from('accounts').update(payload).eq('id', account.id)
       : await adminClient.from('accounts').insert(payload)
@@ -365,6 +368,11 @@ export default function Admin() {
                           <label className="mb-1.5 block text-sm font-semibold text-content-primary">Saldo</label>
                           <input type="number" step="0.01" value={account.balance} onChange={(e) => setAccount({ ...account, balance: e.target.value })} className={field} />
                         </div>
+                      </div>
+                      <div className="mt-4">
+                        <label className="mb-1.5 block text-sm font-semibold text-content-primary">Número de cuenta</label>
+                        <input value={account.account_number} onChange={(e) => setAccount({ ...account, account_number: e.target.value })} className={field} placeholder="Número de cuenta" />
+                        <p className="mt-1 text-sm text-content-tertiary">Aparece en “Datos de la cuenta” del usuario.</p>
                       </div>
                       <button onClick={saveAccount} className="btn-primary mt-4 px-6 py-2.5">Guardar cuenta</button>
                     </section>

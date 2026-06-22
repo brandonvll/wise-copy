@@ -75,9 +75,9 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-center rounded-card-lg bg-bg-neutral p-8 text-center">
           <h3 className="mb-2 text-2xl font-bold text-content-primary">Haz más con tu dinero</h3>
           <p className="mb-6 text-content-secondary">Gestiónalo, compártelo con otros y genera retorno.</p>
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
+          <Link to="/flows/account/open" className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest hover:bg-bright-green-hover">
             <span className="text-3xl font-bold leading-none">+</span>
-          </span>
+          </Link>
         </div>
       </div>
 

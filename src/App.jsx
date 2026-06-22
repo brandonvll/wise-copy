@@ -27,11 +27,12 @@ import YourAccount from './pages/YourAccount.jsx'
 import Inbox from './pages/Inbox.jsx'
 import Pricing from './pages/Pricing.jsx'
 import AccountDetails from './pages/AccountDetails.jsx'
+import DoMore from './pages/DoMore.jsx'
 import Admin from './pages/Admin.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 // Prefijos de rutas de app/auth: sin barra ni pie de marketing
-const APP_PREFIXES = ['/login', '/register', '/admin', '/home', '/cards', '/transactions', '/recipients', '/insights', '/payments', '/your-account']
+const APP_PREFIXES = ['/login', '/register', '/admin', '/home', '/cards', '/transactions', '/recipients', '/insights', '/payments', '/your-account', '/flows']
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -88,6 +89,7 @@ export default function App() {
           <Route path="/recipients" element={<Protected><Recipients /></Protected>} />
           <Route path="/insights" element={<Protected><Insights /></Protected>} />
           <Route path="/payments/account-details" element={<Protected><AccountDetails /></Protected>} />
+          <Route path="/flows/account/open" element={<Protected><DoMore /></Protected>} />
           <Route path="/payments/scheduled" element={<Protected><Scheduled /></Protected>} />
           <Route path="/payments/direct-debits" element={<Protected><DirectDebits /></Protected>} />
           <Route path="/payments/recurring" element={<Protected><Recurring /></Protected>} />

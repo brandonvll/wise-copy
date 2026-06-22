@@ -176,6 +176,13 @@ const paths = {
       <circle cx="12" cy="12" r="3" />
     </>
   ),
+  plane: <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />,
+  piggy: (
+    <>
+      <path d="M4 11a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1a4 4 0 0 1-2 3.5V19h-3v-2H9v2H6v-3.5A4 4 0 0 1 4 12z" />
+      <path d="M3 11H2M15 9h.01" />
+    </>
+  ),
   grid: (
     <>
       <rect x="3" y="3" width="7" height="7" rx="1.5" />
