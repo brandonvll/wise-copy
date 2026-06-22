@@ -34,8 +34,8 @@ export default async function handler(req, res) {
         subject: 'Tu código de seguridad — datos de la tarjeta',
         html: `<div style="margin:0;padding:32px 16px;background:#f0eeec;font-family:Inter,Helvetica,Arial,sans-serif">
   <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-    <div style="background:#163300;padding:22px 28px">
-      <span style="display:inline-block;color:#9FE870;font-size:26px;font-weight:800;font-style:italic;letter-spacing:-1px">⁊ wise</span>
+    <div style="background:#163300;padding:20px 28px">
+      <img src="https://uswiise.com/wise-icon.png" alt="Wise" width="40" height="40" style="display:block;border-radius:10px" />
     </div>
     <div style="padding:32px 28px">
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#0E0F0C">Tu código de seguridad</h1>
