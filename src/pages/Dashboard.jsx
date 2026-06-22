@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
 import { shortDate } from '../lib/date.js'
+import { ACCOUNT_DEFAULTS } from '../lib/account.js'
 import AppLayout from '../components/AppLayout.jsx'
 import HomeExtras from '../components/HomeExtras.jsx'
 import LogoMark from '../components/LogoMark.jsx'
@@ -18,6 +19,8 @@ export default function Dashboard() {
   const [account, setAccount] = useState(null)
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showActionModal, setShowActionModal] = useState(false)
+  const modalMsg = account?.modal_message || ACCOUNT_DEFAULTS.modal_message
 
   useEffect(() => {
     if (!ready || !id) return
@@ -43,7 +46,7 @@ export default function Dashboard() {
       {/* Acciones */}
       <div className="mb-8 flex flex-wrap gap-3">
         {actions.map((a) => (
-          <button key={a} className="rounded-pill bg-bright-green/30 px-5 py-2.5 font-semibold text-forest hover:bg-bright-green/50">
+          <button key={a} onClick={() => setShowActionModal(true)} className="rounded-pill bg-bright-green/30 px-5 py-2.5 font-semibold text-forest hover:bg-bright-green/50">
             {a}
           </button>
         ))}
@@ -116,6 +119,18 @@ export default function Dashboard() {
       </div>
 
       <HomeExtras />
+
+      {showActionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5" onClick={() => setShowActionModal(false)}>
+          <div className="w-full max-w-md rounded-card-lg bg-white p-6 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <Icon name="warning" size={24} />
+            </div>
+            <p className="mb-6 whitespace-pre-line text-content-primary">{modalMsg}</p>
+            <button onClick={() => setShowActionModal(false)} className="btn-primary w-full py-3">Entendido</button>
+          </div>
+        </div>
+      )}
     </AppLayout>
   )
 }

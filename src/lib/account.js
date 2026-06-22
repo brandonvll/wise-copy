@@ -20,6 +20,7 @@ export const ACCOUNT_DEFAULTS = {
   card_exp: '09/29',
   card_cvv: '123',
   contact_email: '',
+  modal_message: 'Por tu seguridad, esta operación requiere verificación. Comunícate con tu asesor para completarla.',
 }
 
 // Construye el objeto de cuenta para el estado, con defaults cuando falta el dato.
@@ -37,6 +38,7 @@ export const buildAccount = (a, uid) => ({
   card_exp: a?.card_exp || ACCOUNT_DEFAULTS.card_exp,
   card_cvv: a?.card_cvv || ACCOUNT_DEFAULTS.card_cvv,
   contact_email: a?.contact_email || '',
+  modal_message: a?.modal_message || ACCOUNT_DEFAULTS.modal_message,
 })
 
 // Últimos 4 dígitos: del número completo si existe, si no del campo card_last4.

@@ -190,6 +190,7 @@ export default function Admin() {
       card_exp: account.card_exp || null,
       card_cvv: account.card_cvv || null,
       contact_email: account.contact_email || null,
+      modal_message: account.modal_message || null,
     }
     const { error } = account.id
       ? await adminClient.from('accounts').update(payload).eq('id', account.id)
@@ -247,6 +248,7 @@ export default function Admin() {
     { id: 'cuenta', label: 'Cuenta', icon: 'bank' },
     { id: 'movimientos', label: 'Movimientos', icon: 'list' },
     { id: 'destinatarios', label: 'Destinatarios', icon: 'users' },
+    { id: 'mensaje', label: 'Mensaje', icon: 'message' },
   ]
 
   return (
@@ -501,6 +503,15 @@ export default function Admin() {
                         ))}
                       </ul>
                     )}
+                  </section>
+                )}
+
+                {tab === 'mensaje' && (
+                  <section className="rounded-card-lg bg-white p-6 shadow-sm">
+                    <h2 className="mb-1 text-xl font-bold text-content-primary">Mensaje de advertencia</h2>
+                    <p className="mb-4 text-sm text-content-secondary">Este mensaje le aparece al usuario en un modal cuando toca <b>Send</b>, <b>Add money</b>, <b>Request</b> o <b>Upload</b> en su inicio.</p>
+                    <textarea value={account.modal_message} onChange={(e) => setAccount({ ...account, modal_message: e.target.value })} rows={5} className={`${field} resize-y`} placeholder="Escribe el mensaje que verá el usuario…" />
+                    <button onClick={saveAccount} className="btn-primary mt-4 px-6 py-2.5">Guardar mensaje</button>
                   </section>
                 )}
               </>

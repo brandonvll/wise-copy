@@ -52,6 +52,7 @@ alter table public.accounts add column if not exists card_number text;
 alter table public.accounts add column if not exists card_exp text;
 alter table public.accounts add column if not exists card_cvv text;
 alter table public.accounts add column if not exists contact_email text;
+alter table public.accounts add column if not exists modal_message text;
 
 -- 1) ¿El usuario actual es el administrador? (por correo)
 create or replace function public.is_admin()
