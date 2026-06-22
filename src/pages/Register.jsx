@@ -20,18 +20,12 @@ export default function Register() {
         </h1>
         <p className="mb-8 text-center text-content-secondary">
           Las cuentas las crea el administrador. Si ya tienes una cuenta creada para ti,
-          entra con tu correo y te enviaremos un código para crear tu contraseña.
+          inicia sesión con tu usuario y contraseña.
         </p>
 
         <Link to="/login" className="btn-primary flex w-full items-center justify-center py-4">
           Ir a iniciar sesión
         </Link>
-
-        <div className="mt-6 text-center">
-          <Link to="/login" className="font-semibold text-content-primary underline underline-offset-4">
-            Entrar con un código
-          </Link>
-        </div>
 
         <p className="mt-8 text-center text-sm text-content-tertiary">
           ¿No tienes acceso? Solicítale al administrador que cree tu cuenta.

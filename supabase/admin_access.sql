@@ -32,6 +32,7 @@ create table if not exists public.managed_users (
   created_at timestamptz default now()
 );
 alter table public.managed_users add column if not exists user_id uuid;
+alter table public.managed_users add column if not exists username text;
 alter table public.managed_users enable row level security;
 drop policy if exists "own managed_users" on public.managed_users;
 create policy "own managed_users" on public.managed_users

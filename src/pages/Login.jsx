@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import AuthHeader from '../components/AuthHeader.jsx'
 import Icon from '../components/Icon.jsx'
-import OtpInput from '../components/OtpInput.jsx'
-import { supabase } from '../lib/supabase.js'
+import { supabase, usernameToEmail } from '../lib/supabase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const field = 'w-full rounded-xl border-2 border-black/15 px-4 py-3.5 outline-none transition-colors focus:border-forest'
@@ -23,220 +22,72 @@ const AppleLogo = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="#000" aria-hidden="true"><path d="M17.05 12.5c-.03-2.6 2.12-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.81 0-2.07-.92-3.4-.9-1.75.03-3.36 1.02-4.26 2.58-1.82 3.16-.47 7.83 1.3 10.4.86 1.25 1.89 2.66 3.23 2.61 1.3-.05 1.79-.84 3.36-.84 1.57 0 2.01.84 3.38.81 1.4-.02 2.28-1.27 3.13-2.53.99-1.45 1.4-2.86 1.42-2.93-.03-.01-2.72-1.05-2.75-4.16zM14.6 4.84c.72-.87 1.2-2.08 1.07-3.28-1.03.04-2.28.69-3.02 1.55-.66.77-1.24 2-1.08 3.18 1.15.09 2.32-.58 3.03-1.45z" /></svg>
 )
 
-const EyeBtn = ({ show, onClick }) => (
-  <button type="button" onClick={onClick} aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary hover:text-content-primary">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />{!show && <path d="M3 3l18 18" />}
-    </svg>
-  </button>
-)
-const Err = ({ children }) => <p role="alert" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{children}</p>
-
-const traducir = (msg = '') => {
-  const m = msg.toLowerCase()
-  if (m.includes('invalid login')) return 'Correo o contraseña incorrectos.'
-  if (m.includes('email not confirmed')) return 'Tu correo aún no está activado. Entra con un código.'
-  if (m.includes('signups not allowed') || m.includes('not allowed')) return 'No encontramos una cuenta con ese correo. Pídele acceso al administrador.'
-  if (m.includes('rate') || m.includes('too many')) return 'Demasiados intentos. Espera un momento antes de reintentar.'
-  return msg
-}
-const isRate = (error) => error && (error.status === 429 || /rate|too many/i.test(error.message || ''))
-
 export default function Login() {
-  const { session, user, signIn } = useAuth()
+  const { session, user } = useAuth()
   const navigate = useNavigate()
-  const [mode, setMode] = useState('password') // 'password' | 'code'
-  const [step, setStep] = useState('email') // modo código: 'email' | 'code' | 'enterpass'
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [code, setCode] = useState('')
   const [show, setShow] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [cooldown, setCooldown] = useState(0)
 
   const pwSet = !!user?.user_metadata?.password_set
-  // "Ingresa tu contraseña" solo dentro del flujo del código (tras verificarlo).
-  const showEnterPass = mode === 'code' && step === 'enterpass'
+  if (session && pwSet) return <Navigate to="/home" replace />
 
-  useEffect(() => {
-    if (cooldown <= 0) return
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
-    return () => clearTimeout(t)
-  }, [cooldown])
-
-  // verificar código automáticamente al completar 6 dígitos
-  useEffect(() => {
-    if (!(mode === 'code' && step === 'code') || code.length !== 6 || busy) return
-    ;(async () => {
-      setError('')
-      setBusy(true)
-      const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code, type: 'email' })
-      setBusy(false)
-      if (error) {
-        setError(isRate(error) ? 'Demasiados intentos. Espera un momento.' : 'Código incorrecto o vencido.')
-        setCode('')
-      } else {
-        setPassword(''); setStep('enterpass')
-      }
-    })()
-  }, [code, step, mode, busy, email])
-
-  if (session && pwSet && !showEnterPass) return <Navigate to="/home" replace />
-
-  // ---- Login con contraseña (usuarios ya activados o primer ingreso directo) ----
-  const onPasswordLogin = async (e) => {
+  const onLogin = async (e) => {
     e.preventDefault()
     setError('')
     setBusy(true)
-    const { data, error } = await signIn(email.trim(), password)
-    if (error) { setBusy(false); return setError(traducir(error.message)) }
-    if (!data?.user?.user_metadata?.password_set) {
-      await supabase.auth.updateUser({ data: { password_set: true } })
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email: usernameToEmail(username), password })
+    if (!error) { await supabase.auth.updateUser({ data: { password_set: true } }).catch(() => {}) }
     setBusy(false)
-    navigate('/home')
+    if (error) setError('Usuario o contraseña incorrectos.')
+    else navigate('/home')
   }
-
-  // ---- Flujo de código: enviar código ----
-  const sendCode = async (e) => {
-    e.preventDefault()
-    setError('')
-    setBusy(true)
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } })
-    setBusy(false)
-    if (isRate(error)) { setError(traducir(error.message)); return }
-    // Respuesta neutral: avanzamos al paso del código exista o no la cuenta.
-    setCode(''); setCooldown(45); setStep('code')
-  }
-
-  const resend = async () => {
-    if (cooldown > 0 || busy) return
-    setError(''); setCode(''); setBusy(true)
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } })
-    setBusy(false)
-    if (isRate(error)) setError(traducir(error.message))
-    else setCooldown(45)
-  }
-
-  // ---- Tras el código: escribe la contraseña que le dio el administrador ----
-  const submitPassword = async (e) => {
-    e.preventDefault()
-    setError('')
-    setBusy(true)
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    if (error) {
-      setBusy(false)
-      return setError('Contraseña incorrecta. Es la que te dio el administrador.')
-    }
-    await supabase.auth.updateUser({ data: { password_set: true } })
-    setBusy(false)
-    navigate('/home')
-  }
-
-  const goCode = () => { setMode('code'); setStep('email'); setError(''); setCode(''); setPassword('') }
-  const backToPassword = () => { setMode('password'); setStep('email'); setError(''); setCode(''); setPassword('') }
 
   return (
     <div className="min-h-screen bg-white">
       <AuthHeader />
       <div className="mx-auto w-full max-w-[480px] px-5 py-12 md:py-16">
+        <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Te damos la bienvenida de nuevo</h1>
+        <p className="mb-8 text-center text-content-secondary">
+          ¿Por primera vez en Wise?{' '}
+          <Link to="/register" className="font-semibold text-content-primary underline underline-offset-2">Regístrate</Link>
+        </p>
 
-        {/* ====== TRAS EL CÓDIGO: escribir la contraseña dada ====== */}
-        {showEnterPass ? (
-          <>
-            <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Ingresa tu contraseña</h1>
-            <p className="mb-8 text-center text-content-secondary">Escribe la contraseña que te dio el administrador para entrar a tu cuenta.</p>
-            <form className="space-y-5" onSubmit={submitPassword}>
-              <div>
-                <label className="mb-1.5 block font-semibold text-content-primary">Contraseña</label>
-                <div className="relative">
-                  <input type={show ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-12`} autoFocus autoComplete="current-password" />
-                  <EyeBtn show={show} onClick={() => setShow((s) => !s)} />
-                </div>
-              </div>
-              {error && <Err>{error}</Err>}
-              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Entrando…' : 'Entrar'}</button>
-            </form>
-            <div className="mt-6 text-center">
-              <button onClick={backToPassword} className="text-content-tertiary underline underline-offset-4">Cancelar</button>
-            </div>
-          </>
-        ) : mode === 'password' ? (
-          /* ====== LOGIN CON CONTRASEÑA ====== */
-          <>
-            <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Te damos la bienvenida de nuevo</h1>
-            <p className="mb-8 text-center text-content-secondary">
-              ¿Por primera vez en Wise?{' '}
-              <Link to="/register" className="font-semibold text-content-primary underline underline-offset-2">Regístrate</Link>
-            </p>
-            <form className="space-y-5" onSubmit={onPasswordLogin}>
-              <div>
-                <label className="mb-1.5 block font-semibold text-content-primary">Tu dirección de correo electrónico</label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={field} autoComplete="email" />
-              </div>
-              <div>
-                <label className="mb-1.5 block font-semibold text-content-primary">Tu contraseña</label>
-                <div className="relative">
-                  <input type={show ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-12`} autoComplete="current-password" />
-                  <EyeBtn show={show} onClick={() => setShow((s) => !s)} />
-                </div>
-              </div>
-              {error && <Err>{error}</Err>}
-              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Entrando…' : 'Iniciar sesión'}</button>
-            </form>
-            <div className="mt-6 text-center">
-              <button onClick={goCode} className="font-semibold text-content-primary underline underline-offset-4">
-                ¿Primera vez? Activa tu cuenta con un código
+        <form className="space-y-5" onSubmit={onLogin}>
+          <div>
+            <label className="mb-1.5 block font-semibold text-content-primary">Usuario</label>
+            <input required value={username} onChange={(e) => setUsername(e.target.value)} className={field} autoComplete="username" autoFocus />
+          </div>
+          <div>
+            <label className="mb-1.5 block font-semibold text-content-primary">Tu contraseña</label>
+            <div className="relative">
+              <input type={show ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-12`} autoComplete="current-password" />
+              <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary hover:text-content-primary">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />{!show && <path d="M3 3l18 18" />}
+                </svg>
               </button>
             </div>
-            <p className="my-7 text-center text-content-secondary">O inicia sesión con</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[<GoogleG key="g" />, <FacebookF key="f" />, <AppleLogo key="a" />].map((ic, i) => (
-                <button key={i} disabled aria-disabled="true" title="Próximamente" className="flex items-center justify-center rounded-pill border-2 border-black/15 py-3.5 opacity-60" aria-label="Iniciar sesión con red social (próximamente)">{ic}</button>
-              ))}
-            </div>
-            <button disabled aria-disabled="true" title="Próximamente" className="mt-3 flex w-full items-center justify-center gap-2 rounded-pill border-2 border-black/15 py-3.5 font-semibold text-content-primary opacity-60">
-              <Icon name="key" size={20} /> Inicia sesión con una llave de acceso
-            </button>
-          </>
-        ) : step === 'email' ? (
-          /* ====== MODO CÓDIGO — pedir correo ====== */
-          <>
-            <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Accede con un código</h1>
-            <p className="mb-8 text-center text-content-secondary">Te enviaremos un código de 6 dígitos a tu correo.</p>
-            <form className="space-y-5" onSubmit={sendCode}>
-              <div>
-                <label className="mb-1.5 block font-semibold text-content-primary">Tu dirección de correo electrónico</label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={field} autoFocus autoComplete="email" />
-              </div>
-              {error && <Err>{error}</Err>}
-              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Enviando…' : 'Enviar código'}</button>
-            </form>
-            <div className="mt-6 text-center">
-              <button onClick={backToPassword} className="font-semibold text-content-primary underline underline-offset-4">Volver a iniciar sesión</button>
-            </div>
-          </>
-        ) : (
-          /* ====== MODO CÓDIGO — ingresar código ====== */
-          <div className="text-center">
-            <h1 className="mb-3 text-[1.4rem] font-bold leading-tight text-content-primary">Revisa tu correo</h1>
-            <p className="mb-6 text-content-secondary">
-              Si tienes una cuenta con ese correo, te enviamos un código de 6 dígitos a<br /><span className="font-semibold text-content-primary">{email}</span>
-            </p>
-            <OtpInput value={code} onChange={setCode} />
-            {busy && <p className="mt-4 text-sm text-content-tertiary" aria-live="polite">Verificando…</p>}
-            {error && <div className="mt-4"><Err>{error}</Err></div>}
-            <button onClick={resend} disabled={cooldown > 0 || busy} className="mt-6 font-semibold text-content-primary underline underline-offset-4 disabled:no-underline disabled:text-content-tertiary">
-              {cooldown > 0 ? `Reenviar código en ${cooldown}s` : 'Reenviar código'}
-            </button>
-            <div className="mt-2 flex justify-center gap-4">
-              <button onClick={() => { setStep('email'); setError(''); setCode('') }} className="text-content-tertiary underline underline-offset-4">Cambiar correo</button>
-              <button onClick={backToPassword} className="text-content-tertiary underline underline-offset-4">Cancelar</button>
-            </div>
           </div>
-        )}
+          {error && <p role="alert" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>}
+          <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Entrando…' : 'Iniciar sesión'}</button>
+        </form>
 
+        <div className="mt-6 text-center">
+          <p className="text-sm text-content-tertiary">¿No puedes entrar? Pídele tus datos al administrador.</p>
+        </div>
+
+        <p className="my-7 text-center text-content-secondary">O inicia sesión con</p>
+        <div className="grid grid-cols-3 gap-3">
+          {[<GoogleG key="g" />, <FacebookF key="f" />, <AppleLogo key="a" />].map((ic, i) => (
+            <button key={i} disabled aria-disabled="true" title="Próximamente" className="flex items-center justify-center rounded-pill border-2 border-black/15 py-3.5 opacity-60" aria-label="Iniciar sesión con red social (próximamente)">{ic}</button>
+          ))}
+        </div>
+        <button disabled aria-disabled="true" title="Próximamente" className="mt-3 flex w-full items-center justify-center gap-2 rounded-pill border-2 border-black/15 py-3.5 font-semibold text-content-primary opacity-60">
+          <Icon name="key" size={20} /> Inicia sesión con una llave de acceso
+        </button>
       </div>
     </div>
   )

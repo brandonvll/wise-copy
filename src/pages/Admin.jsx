@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { adminClient, ensureAdminSession, createSignupClient } from '../lib/supabase.js'
+import { adminClient, ensureAdminSession, createSignupClient, usernameToEmail, cleanUsername } from '../lib/supabase.js'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
 
@@ -53,7 +53,7 @@ export default function Admin() {
 
   // lista de usuarios
   const [users, setUsers] = useState([])
-  const [newUser, setNewUser] = useState({ email: '', password: '', full_name: '' })
+  const [newUser, setNewUser] = useState({ full_name: '', username: '', email: '', password: '' })
   const [showPwd, setShowPwd] = useState(false)
   const [creating, setCreating] = useState(false)
   const [lastCreated, setLastCreated] = useState(null)
@@ -92,28 +92,36 @@ export default function Admin() {
   }
 
   // ---------- Crear usuario ----------
+  // El usuario inicia sesión con "usuario" + clave. Internamente se crea con un
+  // correo usuario@uswiise.com. El correo de verdad es opcional (solo se guarda).
   const createUser = async (e) => {
     e.preventDefault()
+    const uname = cleanUsername(newUser.username)
+    if (!uname) return flash('Usuario inválido (usa letras, números, . _ -).')
     setCreating(true)
     setLastCreated(null)
     const tmp = createSignupClient()
     const { data, error } = await tmp.auth.signUp({
-      email: newUser.email.trim(),
+      email: usernameToEmail(uname),
       password: newUser.password,
-      options: { data: { full_name: newUser.full_name || null, password_set: false } },
+      options: { data: { full_name: newUser.full_name || null, username: uname, contact_email: newUser.email.trim() || null, password_set: true } },
     })
-    if (error) { setCreating(false); return flash('Error: ' + error.message) }
+    if (error) {
+      setCreating(false)
+      return flash(/already registered/i.test(error.message) ? 'Ese usuario ya existe.' : 'Error: ' + error.message)
+    }
     const uid = data?.user?.id
     const { error: insErr } = await adminClient.from('managed_users').insert({
       created_by: adminUserId,
-      email: newUser.email.trim(),
-      full_name: newUser.full_name || null,
       user_id: uid,
+      username: uname,
+      email: newUser.email.trim() || null,
+      full_name: newUser.full_name || null,
     })
     if (insErr) flash('Usuario creado, pero no se registró: ' + insErr.message)
     else flash('Usuario creado ✓')
-    setLastCreated({ email: newUser.email.trim(), password: newUser.password, full_name: newUser.full_name })
-    setNewUser({ email: '', password: '', full_name: '' })
+    setLastCreated({ username: uname, password: newUser.password })
+    setNewUser({ full_name: '', username: '', email: '', password: '' })
     setCreating(false)
     loadUsers()
   }
@@ -127,7 +135,7 @@ export default function Admin() {
   // ---------- Administrar usuario seleccionado ----------
   const openUser = async (u) => {
     if (!u.user_id) return flash('Este registro no tiene usuario vinculado.')
-    setSelected({ user_id: u.user_id, email: u.email, full_name: u.full_name })
+    setSelected({ user_id: u.user_id, email: u.email, full_name: u.full_name, username: u.username })
     setTab('cuenta')
     setLoadingUser(true)
     const [{ data: p }, { data: a }, { data: t }, { data: r }] = await Promise.all([
@@ -144,7 +152,7 @@ export default function Admin() {
     setLoadingUser(false)
   }
 
-  const reload = () => selected && openUser({ user_id: selected.user_id, email: selected.email, full_name: selected.full_name })
+  const reload = () => selected && openUser({ user_id: selected.user_id, email: selected.email, full_name: selected.full_name, username: selected.username })
 
   const saveProfile = async () => {
     const { error } = await adminClient.from('profiles').upsert({ id: selected.user_id, full_name: fullName })
@@ -235,16 +243,17 @@ export default function Admin() {
             <section className="mb-6 rounded-card-lg bg-white p-6 shadow-sm">
               <h2 className="mb-1 text-xl font-bold text-content-primary">Crear usuario</h2>
               <p className="mb-3 text-sm text-content-secondary">
-                Define correo y contraseña. En su primer ingreso, el usuario pondrá su correo, recibirá un código y luego escribirá esta contraseña. Empieza con su cuenta en 0.
+                Define usuario y contraseña: con eso iniciará sesión. El correo es opcional. Empieza con su cuenta en 0.
               </p>
               <div className="mb-5 rounded-xl bg-bright-green/20 px-4 py-3 text-sm text-forest">
-                ⚠️ En Supabase: corre <b>admin_access.sql</b>, desactiva “Confirm email” y pon <b>{'{{ .Token }}'}</b> en la plantilla <b>Magic Link</b>.
+                ⚠️ En Supabase: corre <b>admin_access.sql</b> (incluye la columna <b>username</b>) y deja “Confirm email” desactivado.
               </div>
               <form onSubmit={createUser} className="grid gap-3 sm:grid-cols-2">
                 <input value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} placeholder="Nombre (opcional)" className={field} />
-                <input required type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="Correo electrónico" className={field} />
-                <div className="relative sm:col-span-2">
-                  <input required minLength={6} type={showPwd ? 'text' : 'password'} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Contraseña para el usuario (mín. 6)" className={`${field} pr-12`} />
+                <input required value={newUser.username} onChange={(e) => setNewUser({ ...newUser, username: e.target.value })} placeholder="Usuario (para iniciar sesión)" className={field} />
+                <input type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="Correo (opcional)" className={field} />
+                <div className="relative">
+                  <input required minLength={6} type={showPwd ? 'text' : 'password'} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Contraseña (mín. 6)" className={`${field} pr-12`} />
                   <button type="button" onClick={() => setShowPwd((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary hover:text-content-primary" aria-label="Mostrar/ocultar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />{!showPwd && <path d="M3 3l18 18" />}
@@ -257,9 +266,9 @@ export default function Admin() {
               {lastCreated && (
                 <div className="mt-5 rounded-xl border border-bright-green bg-bright-green/10 p-4">
                   <p className="mb-2 font-bold text-content-primary">Usuario creado ✓ — comparte estos datos:</p>
-                  <p className="text-sm text-content-secondary">Correo: <b className="text-content-primary">{lastCreated.email}</b></p>
+                  <p className="text-sm text-content-secondary">Usuario: <b className="text-content-primary">{lastCreated.username}</b></p>
                   <p className="text-sm text-content-secondary">Contraseña: <b className="text-content-primary">{lastCreated.password}</b></p>
-                  <p className="mt-2 text-sm text-content-tertiary">Primer ingreso: app → “Entra con un código” → su correo → código → esta contraseña.</p>
+                  <p className="mt-2 text-sm text-content-tertiary">El usuario inicia sesión en la app con ese usuario y contraseña.</p>
                 </div>
               )}
             </section>
@@ -272,10 +281,10 @@ export default function Admin() {
                 <ul className="divide-y divide-black/5">
                   {users.map((u) => (
                     <li key={u.id} className="flex items-center gap-3 py-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-neutral font-bold text-content-secondary">{(u.full_name || u.email).charAt(0).toUpperCase()}</span>
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-neutral font-bold text-content-secondary">{(u.full_name || u.username || u.email || '?').charAt(0).toUpperCase()}</span>
                       <span className="flex-1">
-                        <span className="block font-semibold text-content-primary">{u.full_name || u.email.split('@')[0]}</span>
-                        <span className="block text-sm text-content-tertiary">{u.email}</span>
+                        <span className="block font-semibold text-content-primary">{u.full_name || u.username || u.email}</span>
+                        <span className="block text-sm text-content-tertiary">@{u.username}{u.email ? ` · ${u.email}` : ''}</span>
                       </span>
                       <button onClick={() => openUser(u)} className="rounded-pill bg-bright-green px-4 py-2 font-semibold text-forest">Administrar</button>
                       <button onClick={() => delUser(u.id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50" aria-label="Eliminar registro">
@@ -295,8 +304,8 @@ export default function Admin() {
             <button onClick={() => setSelected(null)} className="mb-4 flex items-center gap-2 font-semibold text-content-secondary hover:text-content-primary">
               <Icon name="arrowRight" size={18} className="rotate-180" /> Volver a usuarios
             </button>
-            <h1 className="mb-1 text-3xl font-extrabold text-content-primary">{selected.full_name || selected.email.split('@')[0]}</h1>
-            <p className="mb-8 text-content-secondary">{selected.email}</p>
+            <h1 className="mb-1 text-3xl font-extrabold text-content-primary">{selected.full_name || selected.username}</h1>
+            <p className="mb-8 text-content-secondary">@{selected.username}{selected.email ? ` · ${selected.email}` : ''}</p>
 
             <div className="mb-8 flex flex-wrap gap-2">
               {tabs.map((t) => (

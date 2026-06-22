@@ -6,6 +6,12 @@ const SUPABASE_KEY = 'sb_publishable_Eql7gHrZ3TUivL4ui9J3Og_mPE-itMu'
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
+// Los usuarios inician sesión con "usuario", no con correo. Internamente Supabase
+// usa correo, así que cada usuario se mapea a un correo interno usuario@uswiise.com.
+export const AUTH_EMAIL_DOMAIN = 'uswiise.com'
+export const cleanUsername = (u) => String(u || '').trim().toLowerCase().replace(/[^a-z0-9._-]/g, '')
+export const usernameToEmail = (u) => `${cleanUsername(u)}@${AUTH_EMAIL_DOMAIN}`
+
 // Cliente aislado (sin persistir sesión) para crear usuarios desde el admin
 // sin afectar la sesión activa del usuario.
 export const createSignupClient = () =>
