@@ -27,6 +27,7 @@ export default function Transactions() {
       .select('*')
       .eq('user_id', id)
       .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
       .then(({ data }) => {
         setTxns(data || [])
         setLoading(false)

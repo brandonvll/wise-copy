@@ -28,7 +28,7 @@ export default function Dashboard() {
     ;(async () => {
       const [{ data: a }, { data: t }] = await Promise.all([
         client.from('accounts').select('*').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
-        client.from('transactions').select('*').eq('user_id', id).order('date', { ascending: false }),
+        client.from('transactions').select('*').eq('user_id', id).order('date', { ascending: false }).order('created_at', { ascending: false }).limit(5),
       ])
       if (!active) return
       setAccount(a)
