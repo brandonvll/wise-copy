@@ -61,8 +61,9 @@ export default function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="container-wise grid items-center gap-12 py-16 md:grid-cols-2 md:py-24 lg:gap-20">
-        <div>
+      <section className="container-wise grid items-center gap-10 py-10 lg:grid-cols-2 lg:gap-20 lg:py-24">
+        {/* Columna de texto — solo desktop */}
+        <div className="hidden lg:block">
           <div className="mb-8 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:gap-x-8 sm:gap-y-2">
             <Rating icon={<AppStoreIcon />} score="4,8" store="App Store" reviews="152 mil reseñas" />
             <Rating icon={<GooglePlayIcon />} score="4,8" store="Google Play" reviews="1,3 M reseñas" />
@@ -73,7 +74,21 @@ export default function Home() {
           </p>
           <Link to="/register" className="btn-primary px-8 py-4 text-lg">Abre una cuenta</Link>
         </div>
-        <div className="flex justify-center md:justify-end">
+
+        <div className="flex flex-col items-center gap-8 lg:justify-end">
+          {/* Hero verde — solo móvil y tablet */}
+          <div className="w-full max-w-md overflow-hidden rounded-card-lg bg-gradient-to-b from-[#1c4010] to-forest p-7 text-white lg:hidden">
+            <h2 className="text-center font-display text-[2rem] font-black uppercase leading-[0.95] text-bright-green">Envía de forma segura a más de 140 países</h2>
+            <p className="mt-5 text-center text-white/90">Consulta nuestras comisiones y tiempos de envío a:</p>
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3">
+              <span className="flex items-center gap-3">
+                <img src="https://flagcdn.com/w80/de.png" alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+                <span className="text-lg font-bold text-content-primary">Alemania</span>
+              </span>
+              <button className="shrink-0 rounded-pill bg-bright-green px-5 py-2 font-semibold text-forest">Cambiar</button>
+            </div>
+          </div>
+
           <Calculator />
         </div>
       </section>
