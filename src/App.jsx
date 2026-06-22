@@ -24,6 +24,7 @@ import BillSplits from './pages/BillSplits.jsx'
 import DirectDebits from './pages/DirectDebits.jsx'
 import YourAccount from './pages/YourAccount.jsx'
 import Admin from './pages/Admin.jsx'
+import AdminUserPreview from './pages/AdminUserPreview.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 // Prefijos de rutas de app/auth: sin barra ni pie de marketing
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="/cards" element={<Protected><Cards /></Protected>} />
           <Route path="/your-account" element={<Protected><YourAccount /></Protected>} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/preview/:userId" element={<AdminUserPreview />} />
           <Route path="/transactions" element={<Protected><Transactions /></Protected>} />
           <Route path="/recipients" element={<Protected><Recipients /></Protected>} />
           <Route path="/insights" element={<Protected><Insights /></Protected>} />

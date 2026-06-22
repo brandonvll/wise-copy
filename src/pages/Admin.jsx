@@ -319,7 +319,15 @@ export default function Admin() {
             <button onClick={() => setSelected(null)} className="mb-4 flex items-center gap-2 font-semibold text-content-secondary hover:text-content-primary">
               <Icon name="arrowRight" size={18} className="rotate-180" /> Volver a usuarios
             </button>
-            <h1 className="mb-1 text-3xl font-extrabold text-content-primary">{selected.full_name || selected.username}</h1>
+            <div className="mb-1 flex items-start justify-between gap-4">
+              <h1 className="text-3xl font-extrabold text-content-primary">{selected.full_name || selected.username}</h1>
+              <button
+                onClick={() => window.open(`/admin/preview/${selected.user_id}`, '_blank', 'noopener')}
+                className="flex shrink-0 items-center gap-2 rounded-pill border border-black/15 px-4 py-2 font-semibold text-content-primary transition-colors hover:border-content-primary"
+              >
+                <Icon name="eye" size={18} /> Ver como el usuario
+              </button>
+            </div>
             <p className="mb-8 text-content-secondary">@{selected.username}{selected.email ? ` · ${selected.email}` : ''}</p>
 
             <div className="mb-8 flex flex-wrap gap-2">
