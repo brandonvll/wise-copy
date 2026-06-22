@@ -20,6 +20,13 @@ const bottomNav = [
   { to: '/recipients', icon: 'users', label: 'Recipients' },
   { to: '/insights', icon: 'chart', label: 'Insights' },
 ]
+// Barra inferior en móvil (el sidebar pasa abajo)
+const mobileNav = [
+  { to: '/home', icon: 'home', label: 'Home' },
+  { to: '/cards', icon: 'card', label: 'Cards' },
+  { to: '/recipients', icon: 'users', label: 'Recipients' },
+  { to: '/payments/scheduled', icon: 'transfer', label: 'Payments', match: '/payments' },
+]
 
 export default function AppLayout({ children }) {
   const { pathname } = useLocation()
@@ -71,7 +78,7 @@ export default function AppLayout({ children }) {
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-[1280px] gap-8 px-5 pb-16">
+      <div className="mx-auto flex max-w-[1280px] gap-8 px-5 pb-28 lg:pb-16">
         {/* Sidebar */}
         <aside className="hidden w-60 shrink-0 lg:block">
           <nav className="space-y-1">
@@ -121,6 +128,19 @@ export default function AppLayout({ children }) {
         {/* Contenido */}
         <main className="min-w-0 flex-1 pt-2">{children}</main>
       </div>
+
+      {/* Navegación inferior en móvil */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-black/10 bg-white lg:hidden">
+        {mobileNav.map((it) => {
+          const active = it.match ? pathname.startsWith(it.match) : pathname === it.to
+          return (
+            <Link key={it.label} to={it.to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 ${active ? 'text-forest' : 'text-content-tertiary'}`}>
+              <Icon name={it.icon} size={22} />
+              <span className="text-xs font-medium">{it.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
     </div>
   )
 }
