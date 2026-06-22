@@ -67,3 +67,21 @@ create policy "admin all recipients" on public.recipients
 drop policy if exists "admin all managed_users" on public.managed_users;
 create policy "admin all managed_users" on public.managed_users
   for all using (public.is_admin()) with check (public.is_admin());
+
+-- 3) Eliminar un usuario por completo (solo el admin).
+-- Borra el registro de seguimiento y el usuario de Auth; el resto de sus datos
+-- (perfil, cuenta, transacciones, destinatarios) se borra en cascada por las FKs.
+create or replace function public.admin_delete_user(target uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    raise exception 'No autorizado';
+  end if;
+  delete from public.managed_users where user_id = target;
+  delete from auth.users where id = target;
+end;
+$$;

@@ -57,6 +57,8 @@ export default function Admin() {
   const [showPwd, setShowPwd] = useState(false)
   const [creating, setCreating] = useState(false)
   const [lastCreated, setLastCreated] = useState(null)
+  const [confirmDel, setConfirmDel] = useState(null) // usuario a eliminar
+  const [deleting, setDeleting] = useState(false)
 
   // usuario seleccionado para administrar
   const [selected, setSelected] = useState(null) // { user_id, email, full_name }
@@ -126,9 +128,22 @@ export default function Admin() {
     loadUsers()
   }
 
-  const delUser = async (id) => {
-    const { error } = await adminClient.from('managed_users').delete().eq('id', id)
-    flash(error ? 'Error: ' + error.message : 'Registro eliminado ✓')
+  // Elimina por completo (usuario de Auth + sus datos en cascada) vía RPC SECURITY DEFINER.
+  const doDelete = async () => {
+    const u = confirmDel
+    if (!u) return
+    setDeleting(true)
+    let error
+    if (u.user_id) {
+      ;({ error } = await adminClient.rpc('admin_delete_user', { target: u.user_id }))
+    } else {
+      ;({ error } = await adminClient.from('managed_users').delete().eq('id', u.id))
+    }
+    setDeleting(false)
+    setConfirmDel(null)
+    if (error) return flash('Error: ' + error.message)
+    if (selected && u.user_id === selected.user_id) setSelected(null)
+    flash('Usuario eliminado ✓')
     loadUsers()
   }
 
@@ -287,8 +302,8 @@ export default function Admin() {
                         <span className="block text-sm text-content-tertiary">@{u.username}{u.email ? ` · ${u.email}` : ''}</span>
                       </span>
                       <button onClick={() => openUser(u)} className="rounded-pill bg-bright-green px-4 py-2 font-semibold text-forest">Administrar</button>
-                      <button onClick={() => delUser(u.id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50" aria-label="Eliminar registro">
-                        <Icon name="arrowRight" size={18} className="rotate-45" />
+                      <button onClick={() => setConfirmDel(u)} className="rounded-lg p-2 text-red-500 hover:bg-red-50" aria-label="Eliminar usuario">
+                        <Icon name="trash" size={18} />
                       </button>
                     </li>
                   ))}
@@ -430,6 +445,25 @@ export default function Admin() {
           </>
         )}
       </div>
+
+      {/* Modal: confirmar eliminación de usuario */}
+      {confirmDel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5" onClick={() => !deleting && setConfirmDel(null)}>
+          <div className="w-full max-w-md rounded-card-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+              <Icon name="trash" size={24} />
+            </div>
+            <h3 className="mb-2 text-xl font-bold text-content-primary">Eliminar usuario</h3>
+            <p className="mb-6 text-content-secondary">
+              ¿Seguro que quieres eliminar a <b className="text-content-primary">{confirmDel.full_name || confirmDel.username || confirmDel.email}</b>? Se borrará su acceso y todos sus datos (saldo, movimientos, destinatarios). Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setConfirmDel(null)} disabled={deleting} className="rounded-pill border border-black/15 px-5 py-2.5 font-semibold text-content-primary hover:border-content-primary disabled:opacity-60">Cancelar</button>
+              <button onClick={doDelete} disabled={deleting} className="rounded-pill bg-red-500 px-5 py-2.5 font-semibold text-white hover:bg-red-600 disabled:opacity-60">{deleting ? 'Eliminando…' : 'Eliminar'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
