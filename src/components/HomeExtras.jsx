@@ -39,15 +39,16 @@ export default function HomeExtras() {
       {showInterest && (
         <section>
           <h2 className="mb-4 text-2xl font-bold text-content-primary">Introducing Interest</h2>
-          <div className="relative overflow-hidden rounded-card-lg bg-[#3a1f22] p-7 text-white sm:max-w-md">
-            <button onClick={() => setShowInterest(false)} aria-label="Cerrar" className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg leading-none text-white">×</button>
-            <h3 className="font-display text-3xl font-black uppercase leading-tight">Earn 3.14% APY on your USD</h3>
+          <div className="relative flex aspect-square w-full max-w-sm flex-col overflow-hidden rounded-card-lg bg-[#3a1f22] p-7 text-white">
+            <div className="pointer-events-none absolute -bottom-10 -right-8 h-56 w-56 rounded-full bg-gradient-to-tr from-rose-100 via-amber-100 to-transparent opacity-90 blur-2xl" />
+            <img src="/foreground.jpg" alt="" className="pointer-events-none absolute -bottom-4 right-0 w-3/5 object-contain mix-blend-multiply" />
+            <button onClick={() => setShowInterest(false)} aria-label="Cerrar" className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg leading-none text-white">×</button>
+            <h3 className="relative z-10 font-display text-3xl font-black uppercase leading-tight text-[#f4ebda]">Earn 3.14% APY on your USD</h3>
             <p className="mt-2 font-semibold">Start earning interest</p>
-            <div className="relative z-10 mt-8 flex items-center gap-3">
+            <div className="relative z-10 mt-auto flex items-center gap-3">
               <button className="rounded-pill bg-white/85 px-5 py-2.5 font-semibold text-content-primary">Learn more</button>
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-bright-green text-forest"><Icon name="arrowRight" size={22} /></span>
             </div>
-            <div className="pointer-events-none absolute -bottom-8 right-4 h-36 w-36 rounded-full bg-gradient-to-tr from-pink-500 via-orange-300 to-purple-500 opacity-80 blur-[3px]" />
           </div>
         </section>
       )}
