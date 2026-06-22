@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
+import HomeExtras from '../components/HomeExtras.jsx'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
 
@@ -112,6 +113,8 @@ export default function Dashboard() {
           </ul>
         )}
       </div>
+
+      <HomeExtras />
     </AppLayout>
   )
 }
