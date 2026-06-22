@@ -26,7 +26,7 @@ function Item({ icon, title, subtitle, dot, to }) {
 
 const account = [
   { icon: 'bell', title: 'Inbox', dot: true, to: '/your-account/inbox' },
-  { icon: 'tag', title: 'Pricing and discounts' },
+  { icon: 'tag', title: 'Pricing and discounts', to: '/your-account/pricing' },
   { icon: 'help', title: 'Help' },
   { icon: 'doc', title: 'Statements and reports' },
 ]

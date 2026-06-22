@@ -25,6 +25,7 @@ import BillSplits from './pages/BillSplits.jsx'
 import DirectDebits from './pages/DirectDebits.jsx'
 import YourAccount from './pages/YourAccount.jsx'
 import Inbox from './pages/Inbox.jsx'
+import Pricing from './pages/Pricing.jsx'
 import Admin from './pages/Admin.jsx'
 import NotFound from './pages/NotFound.jsx'
 
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/cards" element={<Protected><Cards /></Protected>} />
           <Route path="/your-account" element={<Protected><YourAccount /></Protected>} />
           <Route path="/your-account/inbox" element={<Protected><Inbox /></Protected>} />
+          <Route path="/your-account/pricing" element={<Protected><Pricing /></Protected>} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/transactions" element={<Protected><Transactions /></Protected>} />
           <Route path="/recipients" element={<Protected><Recipients /></Protected>} />
