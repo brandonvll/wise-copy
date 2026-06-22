@@ -75,7 +75,7 @@ export default function App() {
           <Route path="/home" element={<Protected><Dashboard /></Protected>} />
           <Route path="/cards" element={<Protected><Cards /></Protected>} />
           <Route path="/your-account" element={<Protected><YourAccount /></Protected>} />
-          <Route path="/admin" element={<Protected><Admin /></Protected>} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/transactions" element={<Protected><Transactions /></Protected>} />
           <Route path="/recipients" element={<Protected><Recipients /></Protected>} />
           <Route path="/insights" element={<Protected><Insights /></Protected>} />

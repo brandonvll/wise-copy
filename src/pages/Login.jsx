@@ -30,44 +30,35 @@ const EyeBtn = ({ show, onClick }) => (
     </svg>
   </button>
 )
-
-const Err = ({ children }) => (
-  <p role="alert" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{children}</p>
-)
+const Err = ({ children }) => <p role="alert" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{children}</p>
 
 const traducir = (msg = '') => {
   const m = msg.toLowerCase()
   if (m.includes('invalid login')) return 'Correo o contraseña incorrectos.'
-  if (m.includes('email not confirmed')) return 'Tu correo aún no está activado. Entra con un código para activarlo.'
+  if (m.includes('email not confirmed')) return 'Tu correo aún no está activado. Entra con un código.'
   if (m.includes('signups not allowed') || m.includes('not allowed')) return 'No encontramos una cuenta con ese correo. Pídele acceso al administrador.'
   if (m.includes('rate') || m.includes('too many')) return 'Demasiados intentos. Espera un momento antes de reintentar.'
-  if (m.includes('should be at least') || m.includes('at least 6')) return 'La contraseña debe tener al menos 6 caracteres.'
   return msg
 }
 const isRate = (error) => error && (error.status === 429 || /rate|too many/i.test(error.message || ''))
 
 export default function Login() {
-  const { session, user, signIn, signOut } = useAuth()
+  const { session, user, signIn } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = useState('password') // 'password' | 'code'
-  const [step, setStep] = useState('email') // modo código: 'email' | 'code'
+  const [step, setStep] = useState('email') // modo código: 'email' | 'code' | 'enterpass'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [password2, setPassword2] = useState('')
   const [code, setCode] = useState('')
   const [show, setShow] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [cooldown, setCooldown] = useState(0)
-  const [flowAuthed, setFlowAuthed] = useState(false) // se autenticó en ESTA pantalla (no sesión restaurada)
 
   const pwSet = !!user?.user_metadata?.password_set
-  // "Crea tu contraseña" se muestra solo si el usuario acaba de verificar el código
-  // o de iniciar sesión aquí y aún no tiene contraseña. Una sesión vieja restaurada
-  // NO fuerza esta pantalla: ahí se ve el formulario normal de correo + contraseña.
-  const showSetPass = (mode === 'code' && step === 'setpass') || (flowAuthed && !!session && !pwSet)
+  // "Ingresa tu contraseña" solo dentro del flujo del código (tras verificarlo).
+  const showEnterPass = mode === 'code' && step === 'enterpass'
 
-  // cuenta regresiva para reenviar
   useEffect(() => {
     if (cooldown <= 0) return
     const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
@@ -76,7 +67,7 @@ export default function Login() {
 
   // verificar código automáticamente al completar 6 dígitos
   useEffect(() => {
-    if (!(mode === 'code' && step === 'code') || code.length !== 6 || busy || session) return
+    if (!(mode === 'code' && step === 'code') || code.length !== 6 || busy) return
     ;(async () => {
       setError('')
       setBusy(true)
@@ -86,24 +77,25 @@ export default function Login() {
         setError(isRate(error) ? 'Demasiados intentos. Espera un momento.' : 'Código incorrecto o vencido.')
         setCode('')
       } else {
-        setPassword(''); setPassword2(''); setStep('setpass'); setFlowAuthed(true)
+        setPassword(''); setStep('enterpass')
       }
     })()
-  }, [code, step, mode, busy, session, email])
+  }, [code, step, mode, busy, email])
 
-  if (session && pwSet) return <Navigate to="/home" replace />
+  if (session && pwSet && !showEnterPass) return <Navigate to="/home" replace />
 
-  // ---- Login con contraseña (usuarios que ya activaron su cuenta) ----
+  // ---- Login con contraseña (usuarios ya activados o primer ingreso directo) ----
   const onPasswordLogin = async (e) => {
     e.preventDefault()
     setError('')
     setBusy(true)
-    const { error } = await signIn(email.trim(), password)
+    const { data, error } = await signIn(email.trim(), password)
+    if (error) { setBusy(false); return setError(traducir(error.message)) }
+    if (!data?.user?.user_metadata?.password_set) {
+      await supabase.auth.updateUser({ data: { password_set: true } })
+    }
     setBusy(false)
-    if (error) setError(traducir(error.message))
-    else setFlowAuthed(true)
-    // si entra OK con contraseña ya creada → el guard (session && pwSet) redirige a /home;
-    // si la cuenta aún no tiene contraseña → showSetPass lo lleva a crearla
+    navigate('/home')
   }
 
   // ---- Flujo de código: enviar código ----
@@ -114,79 +106,70 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } })
     setBusy(false)
     if (isRate(error)) { setError(traducir(error.message)); return }
-    // Respuesta neutral (no revelamos si la cuenta existe): siempre avanzamos al paso del código.
+    // Respuesta neutral: avanzamos al paso del código exista o no la cuenta.
     setCode(''); setCooldown(45); setStep('code')
   }
 
   const resend = async () => {
     if (cooldown > 0 || busy) return
-    setError('')
-    setCode('')
-    setBusy(true)
+    setError(''); setCode(''); setBusy(true)
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } })
     setBusy(false)
     if (isRate(error)) setError(traducir(error.message))
     else setCooldown(45)
   }
 
-  // crear contraseña (dos veces) y entrar
-  const savePassword = async (e) => {
+  // ---- Tras el código: escribe la contraseña que le dio el administrador ----
+  const submitPassword = async (e) => {
     e.preventDefault()
     setError('')
-    if (password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.')
-    if (password !== password2) return setError('Las contraseñas no coinciden.')
     setBusy(true)
-    const { error } = await supabase.auth.updateUser({ password, data: { password_set: true } })
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+    if (error) {
+      setBusy(false)
+      return setError('Contraseña incorrecta. Es la que te dio el administrador.')
+    }
+    await supabase.auth.updateUser({ data: { password_set: true } })
     setBusy(false)
-    if (error) setError(traducir(error.message))
-    else navigate('/home')
+    navigate('/home')
   }
 
-  const goCode = () => { setMode('code'); setStep('email'); setError(''); setCode('') }
-  const backToPassword = () => { setMode('password'); setStep('email'); setError(''); setCode(''); setPassword(''); setPassword2('') }
-  const usarOtraCuenta = async () => { await signOut(); setMode('password'); setStep('email'); setEmail(''); setPassword(''); setPassword2(''); setCode(''); setError('') }
+  const goCode = () => { setMode('code'); setStep('email'); setError(''); setCode(''); setPassword('') }
+  const backToPassword = () => { setMode('password'); setStep('email'); setError(''); setCode(''); setPassword('') }
 
   return (
     <div className="min-h-screen bg-white">
       <AuthHeader />
       <div className="mx-auto w-full max-w-[480px] px-5 py-12 md:py-16">
 
-        {/* ============ CREAR CONTRASEÑA (forzado si hay sesión sin contraseña) ============ */}
-        {showSetPass ? (
+        {/* ====== TRAS EL CÓDIGO: escribir la contraseña dada ====== */}
+        {showEnterPass ? (
           <>
-            <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Crea tu contraseña</h1>
-            <p className="mb-8 text-center text-content-secondary">Ingrésala dos veces para confirmar y entrar a tu cuenta.</p>
-            <form className="space-y-5" onSubmit={savePassword}>
+            <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Ingresa tu contraseña</h1>
+            <p className="mb-8 text-center text-content-secondary">Escribe la contraseña que te dio el administrador para entrar a tu cuenta.</p>
+            <form className="space-y-5" onSubmit={submitPassword}>
               <div>
                 <label className="mb-1.5 block font-semibold text-content-primary">Contraseña</label>
                 <div className="relative">
-                  <input type={show ? 'text' : 'password'} required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-12`} autoFocus autoComplete="new-password" />
+                  <input type={show ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-12`} autoFocus autoComplete="current-password" />
                   <EyeBtn show={show} onClick={() => setShow((s) => !s)} />
                 </div>
-                <p className="mt-2 text-sm text-content-tertiary">Mínimo 6 caracteres.</p>
-              </div>
-              <div>
-                <label className="mb-1.5 block font-semibold text-content-primary">Repite la contraseña</label>
-                <input type={show ? 'text' : 'password'} required minLength={6} value={password2} onChange={(e) => setPassword2(e.target.value)} className={field} autoComplete="new-password" />
               </div>
               {error && <Err>{error}</Err>}
-              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">
-                {busy ? 'Guardando…' : 'Guardar y entrar'}
-              </button>
+              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Entrando…' : 'Entrar'}</button>
             </form>
             <div className="mt-6 text-center">
-              <button onClick={usarOtraCuenta} className="text-content-tertiary underline underline-offset-4">Usar otra cuenta</button>
+              <button onClick={backToPassword} className="text-content-tertiary underline underline-offset-4">Cancelar</button>
             </div>
           </>
         ) : mode === 'password' ? (
-          /* ============ LOGIN CON CONTRASEÑA ============ */
+          /* ====== LOGIN CON CONTRASEÑA ====== */
           <>
             <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Te damos la bienvenida de nuevo</h1>
             <p className="mb-8 text-center text-content-secondary">
               ¿Por primera vez en Wise?{' '}
               <Link to="/register" className="font-semibold text-content-primary underline underline-offset-2">Regístrate</Link>
             </p>
-
             <form className="space-y-5" onSubmit={onPasswordLogin}>
               <div>
                 <label className="mb-1.5 block font-semibold text-content-primary">Tu dirección de correo electrónico</label>
@@ -200,23 +183,17 @@ export default function Login() {
                 </div>
               </div>
               {error && <Err>{error}</Err>}
-              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">
-                {busy ? 'Entrando…' : 'Iniciar sesión'}
-              </button>
+              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Entrando…' : 'Iniciar sesión'}</button>
             </form>
-
             <div className="mt-6 text-center">
               <button onClick={goCode} className="font-semibold text-content-primary underline underline-offset-4">
-                Primera vez o ¿olvidaste tu contraseña? Entra con un código
+                ¿Primera vez? Activa tu cuenta con un código
               </button>
             </div>
-
             <p className="my-7 text-center text-content-secondary">O inicia sesión con</p>
             <div className="grid grid-cols-3 gap-3">
               {[<GoogleG key="g" />, <FacebookF key="f" />, <AppleLogo key="a" />].map((ic, i) => (
-                <button key={i} disabled aria-disabled="true" title="Próximamente" className="flex items-center justify-center rounded-pill border-2 border-black/15 py-3.5 opacity-60" aria-label="Iniciar sesión con red social (próximamente)">
-                  {ic}
-                </button>
+                <button key={i} disabled aria-disabled="true" title="Próximamente" className="flex items-center justify-center rounded-pill border-2 border-black/15 py-3.5 opacity-60" aria-label="Iniciar sesión con red social (próximamente)">{ic}</button>
               ))}
             </div>
             <button disabled aria-disabled="true" title="Próximamente" className="mt-3 flex w-full items-center justify-center gap-2 rounded-pill border-2 border-black/15 py-3.5 font-semibold text-content-primary opacity-60">
@@ -224,26 +201,24 @@ export default function Login() {
             </button>
           </>
         ) : step === 'email' ? (
-          /* ============ MODO CÓDIGO — pedir correo ============ */
+          /* ====== MODO CÓDIGO — pedir correo ====== */
           <>
             <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Accede con un código</h1>
-            <p className="mb-8 text-center text-content-secondary">Te enviaremos un código de 6 dígitos a tu correo para que crees tu contraseña.</p>
+            <p className="mb-8 text-center text-content-secondary">Te enviaremos un código de 6 dígitos a tu correo.</p>
             <form className="space-y-5" onSubmit={sendCode}>
               <div>
                 <label className="mb-1.5 block font-semibold text-content-primary">Tu dirección de correo electrónico</label>
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={field} autoFocus autoComplete="email" />
               </div>
               {error && <Err>{error}</Err>}
-              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">
-                {busy ? 'Enviando…' : 'Enviar código'}
-              </button>
+              <button type="submit" disabled={busy} className="btn-primary w-full py-4 disabled:opacity-60">{busy ? 'Enviando…' : 'Enviar código'}</button>
             </form>
             <div className="mt-6 text-center">
               <button onClick={backToPassword} className="font-semibold text-content-primary underline underline-offset-4">Volver a iniciar sesión</button>
             </div>
           </>
         ) : (
-          /* ============ MODO CÓDIGO — ingresar código ============ */
+          /* ====== MODO CÓDIGO — ingresar código ====== */
           <div className="text-center">
             <h1 className="mb-3 text-[1.4rem] font-bold leading-tight text-content-primary">Revisa tu correo</h1>
             <p className="mb-6 text-content-secondary">
