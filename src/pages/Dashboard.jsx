@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import HomeExtras from '../components/HomeExtras.jsx'
-import Logo from '../components/Logo.jsx'
+import LogoMark from '../components/LogoMark.jsx'
 import Icon from '../components/Icon.jsx'
 
 const SYMBOL = { USD: '$', EUR: '€', GBP: '£', COP: '$', MXN: '$', BRL: 'R$' }
@@ -53,7 +53,7 @@ export default function Dashboard() {
         <div className="overflow-hidden rounded-card-lg bg-bg-neutral">
           <div className="relative h-20 bg-bright-green px-6 pt-5">
             <span className="flex items-center gap-1 font-semibold text-forest">Tu tarjeta <Icon name="chevronRight" size={16} /></span>
-            <Logo height={18} className="absolute right-6 top-5" />
+            <LogoMark height={18} className="absolute right-6 top-5" />
           </div>
           <div className="px-6 pb-6 pt-4">
             <div className="mb-4 flex items-center justify-between">

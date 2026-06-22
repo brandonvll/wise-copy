@@ -1,4 +1,4 @@
-import Logo from './Logo.jsx'
+import LogoMark from './LogoMark.jsx'
 
 // Tarjeta visual estilo Wise (verde, Visa).
 export default function WiseCard({ className = '' }) {
@@ -12,7 +12,7 @@ export default function WiseCard({ className = '' }) {
           <path d="M8.5 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14" />
         </svg>
       </div>
-      <Logo height={22} className="absolute right-5 top-5" />
+      <LogoMark height={22} className="absolute right-5 top-5" />
       <span className="absolute bottom-4 right-5 text-2xl font-black italic text-white">VISA</span>
     </div>
   )
