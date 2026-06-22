@@ -114,12 +114,12 @@ export default function HomeExtras() {
       {cards.length > 0 && (
         <section>
           <h2 className="mb-4 text-2xl font-bold text-content-primary">Do more with Wise</h2>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {yellowCards.filter((c) => cards.includes(c.key)).map((c) => (
-              <div key={c.key} className="relative aspect-[4/5] overflow-hidden rounded-card-lg bg-[#f6e000] p-5">
-                <button onClick={() => setCards(cards.filter((k) => k !== c.key))} aria-label="Cerrar" className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-lg leading-none text-content-primary">×</button>
-                <h3 className="max-w-[85%] text-lg font-bold text-content-primary">{c.title}</h3>
-                <Icon name={c.icon} size={64} className="absolute bottom-5 right-5 text-content-primary/25" />
+              <div key={c.key} className="relative aspect-square overflow-hidden rounded-card-lg bg-[#f6e000] p-4">
+                <button onClick={() => setCards(cards.filter((k) => k !== c.key))} aria-label="Cerrar" className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/10 text-base leading-none text-content-primary">×</button>
+                <h3 className="max-w-[90%] text-sm font-bold leading-tight text-content-primary sm:text-base">{c.title}</h3>
+                <Icon name={c.icon} size={40} className="absolute bottom-3 right-3 text-content-primary/25" />
               </div>
             ))}
           </div>
