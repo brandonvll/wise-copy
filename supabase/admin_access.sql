@@ -27,12 +27,14 @@ create policy "own recipients" on public.recipients
 create table if not exists public.managed_users (
   id uuid primary key default gen_random_uuid(),
   created_by uuid not null references auth.users(id) on delete cascade,
-  email text not null,
+  email text,
   full_name text,
   created_at timestamptz default now()
 );
 alter table public.managed_users add column if not exists user_id uuid;
 alter table public.managed_users add column if not exists username text;
+-- El correo es opcional (login por usuario): quitar NOT NULL si la tabla ya existía
+alter table public.managed_users alter column email drop not null;
 alter table public.managed_users enable row level security;
 drop policy if exists "own managed_users" on public.managed_users;
 create policy "own managed_users" on public.managed_users

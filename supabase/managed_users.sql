@@ -6,7 +6,7 @@
 create table if not exists public.managed_users (
   id uuid primary key default gen_random_uuid(),
   created_by uuid not null references auth.users(id) on delete cascade,
-  email text not null,
+  email text,
   full_name text,
   created_at timestamptz default now()
 );
