@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
-import { buildAccount } from '../lib/account.js'
+import { buildAccount, last4Of } from '../lib/account.js'
 import AppLayout from '../components/AppLayout.jsx'
 import LogoMark from '../components/LogoMark.jsx'
 import Icon from '../components/Icon.jsx'
@@ -34,8 +34,8 @@ export default function Cards() {
 
   useEffect(() => {
     if (!ready || !id) return
-    client.from('accounts').select('card_last4').eq('user_id', id).order('created_at').limit(1).maybeSingle()
-      .then(({ data }) => setLast4(buildAccount(data, id).card_last4))
+    client.from('accounts').select('*').eq('user_id', id).order('created_at').limit(1).maybeSingle()
+      .then(({ data }) => setLast4(last4Of(buildAccount(data, id))))
   }, [id, ready, client])
 
   return (

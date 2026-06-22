@@ -186,7 +186,10 @@ export default function Admin() {
       routing_number: account.routing_number || null,
       address: account.address || null,
       swift_bic: account.swift_bic || null,
-      card_last4: account.card_last4 || null,
+      card_number: account.card_number || null,
+      card_exp: account.card_exp || null,
+      card_cvv: account.card_cvv || null,
+      contact_email: account.contact_email || null,
     }
     const { error } = account.id
       ? await adminClient.from('accounts').update(payload).eq('id', account.id)
@@ -399,9 +402,21 @@ export default function Admin() {
                           <label className="mb-1.5 block text-sm font-semibold text-content-primary">Dirección</label>
                           <input value={account.address} onChange={(e) => setAccount({ ...account, address: e.target.value })} className={field} />
                         </div>
+                        <div className="sm:col-span-2">
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Número de tarjeta (completo)</label>
+                          <input value={account.card_number} onChange={(e) => setAccount({ ...account, card_number: e.target.value })} className={field} placeholder="4234 5678 9012 1043" />
+                        </div>
                         <div>
-                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Tarjeta — últimos 4 dígitos</label>
-                          <input value={account.card_last4} onChange={(e) => setAccount({ ...account, card_last4: e.target.value })} maxLength={4} className={field} />
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Vence (MM/YY)</label>
+                          <input value={account.card_exp} onChange={(e) => setAccount({ ...account, card_exp: e.target.value })} className={field} placeholder="09/29" />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">CVV</label>
+                          <input value={account.card_cvv} onChange={(e) => setAccount({ ...account, card_cvv: e.target.value })} className={field} placeholder="123" />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Correo del usuario (para el código de la tarjeta)</label>
+                          <input type="email" value={account.contact_email} onChange={(e) => setAccount({ ...account, contact_email: e.target.value })} className={field} placeholder="correo@ejemplo.com" />
                         </div>
                       </div>
                       <button onClick={saveAccount} className="btn-primary mt-5 px-6 py-2.5">Guardar cuenta</button>

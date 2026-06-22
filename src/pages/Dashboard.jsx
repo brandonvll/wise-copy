@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
+import { shortDate } from '../lib/date.js'
 import AppLayout from '../components/AppLayout.jsx'
 import HomeExtras from '../components/HomeExtras.jsx'
 import LogoMark from '../components/LogoMark.jsx'
@@ -103,7 +104,7 @@ export default function Dashboard() {
                 </span>
                 <div className="flex-1">
                   <p className="font-semibold text-content-primary">{t.name}</p>
-                  <p className="text-sm text-content-tertiary">{t.date}</p>
+                  <p className="text-sm text-content-tertiary">{shortDate(t.date)}</p>
                 </div>
                 <span className={`font-semibold ${Number(t.amount) >= 0 ? 'text-forest' : 'text-content-primary'}`}>
                   {Number(t.amount) >= 0 ? '+' : ''}{fmt(t.amount)} {t.currency || currency}
