@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
 
-function Item({ icon, title, subtitle, dot }) {
-  return (
-    <button className="flex w-full items-center gap-4 rounded-xl px-2 py-4 text-left transition-colors hover:bg-bg-neutral">
+function Item({ icon, title, subtitle, dot, to }) {
+  const cls = 'flex w-full items-center gap-4 rounded-xl px-2 py-4 text-left transition-colors hover:bg-bg-neutral'
+  const inner = (
+    <>
       <span className="relative shrink-0 text-content-primary">
         <Icon name={icon} size={24} />
         {dot && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" />}
@@ -18,12 +19,13 @@ function Item({ icon, title, subtitle, dot }) {
         {subtitle && <span className="block text-sm text-content-secondary">{subtitle}</span>}
       </span>
       <Icon name="chevronRight" size={20} className="shrink-0 text-content-tertiary" />
-    </button>
+    </>
   )
+  return to ? <Link to={to} className={cls}>{inner}</Link> : <button className={cls}>{inner}</button>
 }
 
 const account = [
-  { icon: 'bell', title: 'Inbox', dot: true },
+  { icon: 'bell', title: 'Inbox', dot: true, to: '/your-account/inbox' },
   { icon: 'tag', title: 'Pricing and discounts' },
   { icon: 'help', title: 'Help' },
   { icon: 'doc', title: 'Statements and reports' },
