@@ -277,10 +277,7 @@ export default function Admin() {
               <p className="mb-3 text-sm text-content-secondary">
                 Define usuario y contraseña: con eso iniciará sesión. El correo es opcional. Empieza con su cuenta en 0.
               </p>
-              <div className="mb-5 rounded-xl bg-bright-green/20 px-4 py-3 text-sm text-forest">
-                ⚠️ Recordatorio: corre la última versión de <b>admin_access.sql</b> en Supabase (crea columnas, políticas y la función para eliminar usuarios) y deja “Confirm email” desactivado.
-              </div>
-              <form onSubmit={createUser} className="grid gap-3 sm:grid-cols-2">
+              <form onSubmit={createUser} className="mt-5 grid gap-3 sm:grid-cols-2">
                 <input value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} placeholder="Nombre (opcional)" className={field} />
                 <input required value={newUser.username} onChange={(e) => setNewUser({ ...newUser, username: e.target.value })} placeholder="Usuario (para iniciar sesión)" className={field} />
                 <input type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="Correo (opcional)" className={field} />
