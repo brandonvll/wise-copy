@@ -177,6 +177,20 @@ const paths = {
     </>
   ),
   plane: <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />,
+  snowflake: <path d="M12 2v20M3.5 7l17 10M20.5 7l-17 10" />,
+  pencil: (
+    <>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z" />
+    </>
+  ),
+  keypad: (
+    <>
+      <circle cx="6" cy="6" r="1" /><circle cx="12" cy="6" r="1" /><circle cx="18" cy="6" r="1" />
+      <circle cx="6" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="18" cy="12" r="1" />
+      <circle cx="6" cy="18" r="1" /><circle cx="12" cy="18" r="1" /><circle cx="18" cy="18" r="1" />
+    </>
+  ),
   piggy: (
     <>
       <path d="M4 11a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1a4 4 0 0 1-2 3.5V19h-3v-2H9v2H6v-3.5A4 4 0 0 1 4 12z" />

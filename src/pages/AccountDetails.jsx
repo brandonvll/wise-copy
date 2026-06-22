@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
-import { accountNumberFor } from '../lib/account.js'
+import { buildAccount } from '../lib/account.js'
 import AppLayout from '../components/AppLayout.jsx'
 import Icon from '../components/Icon.jsx'
 
@@ -36,20 +36,19 @@ export default function AccountDetails() {
   const navigate = useNavigate()
   const { id, client, ready, name: viewName } = useViewer()
   const [name, setName] = useState('')
-  const [currency, setCurrency] = useState('USD')
-  const [acctNum, setAcctNum] = useState('')
+  const [acct, setAcct] = useState(buildAccount(null, ''))
   const [tab, setTab] = useState('Fees')
+  const currency = acct.currency
 
   useEffect(() => {
     if (!ready || !id) return
     ;(async () => {
       const [{ data: p }, { data: a }] = await Promise.all([
         client.from('profiles').select('full_name').eq('id', id).maybeSingle(),
-        client.from('accounts').select('currency, account_number').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
+        client.from('accounts').select('*').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
       ])
       setName(p?.full_name || viewName || 'Usuario')
-      if (a?.currency) setCurrency(a.currency)
-      setAcctNum(a?.account_number || accountNumberFor(id))
+      setAcct(buildAccount(a, id))
     })()
   }, [id, ready, client, viewName])
 
@@ -87,11 +86,11 @@ export default function AccountDetails() {
 
             <div className="rounded-card-lg bg-bg-neutral">
               <Field label="Name" value={name} />
-              <Field label="Account type" value="Deposit" sub="Only used for domestic transfers" />
-              <Field label="Routing number (for wire and ACH)" value="084009519" sub="Provided to Wise by Column Bank, our partner" />
-              <Field label="Account number" value={acctNum} />
-              <Field label="Address" value="Wise US Inc, 108 W 13th St, Wilmington, DE, 19801, United States" sub="Only used for international Swift transfers" />
-              <Field label="Swift/BIC" value="TRWIUS35XXX" sub="Only used for international Swift transfers" />
+              <Field label="Account type" value={acct.account_type} sub="Only used for domestic transfers" />
+              <Field label="Routing number (for wire and ACH)" value={acct.routing_number} sub="Provided to Wise by Column Bank, our partner" />
+              <Field label="Account number" value={acct.account_number} />
+              <Field label="Address" value={acct.address} sub="Only used for international Swift transfers" />
+              <Field label="Swift/BIC" value={acct.swift_bic} sub="Only used for international Swift transfers" />
             </div>
 
             <p className="mt-4 text-sm text-content-secondary">

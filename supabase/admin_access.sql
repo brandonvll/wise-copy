@@ -41,8 +41,13 @@ drop policy if exists "own managed_users" on public.managed_users;
 create policy "own managed_users" on public.managed_users
   for all using (auth.uid() = created_by) with check (auth.uid() = created_by);
 
--- 0c) Número de cuenta editable por el admin
+-- 0c) Datos bancarios y de tarjeta editables por el admin
 alter table public.accounts add column if not exists account_number text;
+alter table public.accounts add column if not exists account_type text;
+alter table public.accounts add column if not exists routing_number text;
+alter table public.accounts add column if not exists address text;
+alter table public.accounts add column if not exists swift_bic text;
+alter table public.accounts add column if not exists card_last4 text;
 
 -- 1) ¿El usuario actual es el administrador? (por correo)
 create or replace function public.is_admin()

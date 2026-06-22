@@ -15,6 +15,7 @@ import Register from './pages/Register.jsx'
 import SendMoneyCountry from './pages/SendMoneyCountry.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Cards from './pages/Cards.jsx'
+import CardDetail from './pages/CardDetail.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Recipients from './pages/Recipients.jsx'
 import Insights from './pages/Insights.jsx'
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="/send-money/:segment" element={<SendMoneyCountry />} />
           <Route path="/home" element={<Protected><Dashboard /></Protected>} />
           <Route path="/cards" element={<Protected><Cards /></Protected>} />
+          <Route path="/cards/detail" element={<Protected><CardDetail /></Protected>} />
           <Route path="/your-account" element={<Protected><YourAccount /></Protected>} />
           <Route path="/your-account/inbox" element={<Protected><Inbox /></Protected>} />
           <Route path="/your-account/pricing" element={<Protected><Pricing /></Protected>} />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { adminClient, ensureAdminSession, createSignupClient, usernameToEmail, cleanUsername } from '../lib/supabase.js'
-import { accountNumberFor } from '../lib/account.js'
+import { buildAccount } from '../lib/account.js'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
 
@@ -66,7 +66,7 @@ export default function Admin() {
   const [tab, setTab] = useState('cuenta')
   const [loadingUser, setLoadingUser] = useState(false)
   const [fullName, setFullName] = useState('')
-  const [account, setAccount] = useState({ id: null, currency: 'USD', balance: 0, account_number: '' })
+  const [account, setAccount] = useState(buildAccount(null, ''))
   const [txns, setTxns] = useState([])
   const [recipients, setRecipients] = useState([])
   const [newTxn, setNewTxn] = useState({ tipo: 'egreso', name: '', amount: '', currency: 'USD', date: today(), afecta: true })
@@ -162,9 +162,7 @@ export default function Admin() {
       adminClient.from('recipients').select('*').eq('user_id', u.user_id).order('full_name'),
     ])
     setFullName(p?.full_name || u.full_name || '')
-    setAccount(a
-      ? { id: a.id, currency: a.currency, balance: a.balance, account_number: a.account_number || accountNumberFor(u.user_id) }
-      : { id: null, currency: 'USD', balance: 0, account_number: accountNumberFor(u.user_id) })
+    setAccount(buildAccount(a, u.user_id))
     setTxns(t || [])
     setRecipients(r || [])
     setNewTxn((n) => ({ ...n, currency: a?.currency || 'USD' }))
@@ -179,7 +177,17 @@ export default function Admin() {
   }
 
   const saveAccount = async () => {
-    const payload = { user_id: selected.user_id, currency: account.currency, balance: Number(account.balance) || 0, account_number: account.account_number || null }
+    const payload = {
+      user_id: selected.user_id,
+      currency: account.currency,
+      balance: Number(account.balance) || 0,
+      account_number: account.account_number || null,
+      account_type: account.account_type || null,
+      routing_number: account.routing_number || null,
+      address: account.address || null,
+      swift_bic: account.swift_bic || null,
+      card_last4: account.card_last4 || null,
+    }
     const { error } = account.id
       ? await adminClient.from('accounts').update(payload).eq('id', account.id)
       : await adminClient.from('accounts').insert(payload)
@@ -369,12 +377,34 @@ export default function Admin() {
                           <input type="number" step="0.01" value={account.balance} onChange={(e) => setAccount({ ...account, balance: e.target.value })} className={field} />
                         </div>
                       </div>
-                      <div className="mt-4">
-                        <label className="mb-1.5 block text-sm font-semibold text-content-primary">Número de cuenta</label>
-                        <input value={account.account_number} onChange={(e) => setAccount({ ...account, account_number: e.target.value })} className={field} placeholder="Número de cuenta" />
-                        <p className="mt-1 text-sm text-content-tertiary">Aparece en “Datos de la cuenta” del usuario.</p>
+                      <p className="mb-3 mt-6 text-sm font-bold uppercase tracking-wide text-content-tertiary">Datos de la cuenta (los ve el usuario)</p>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Tipo de cuenta</label>
+                          <input value={account.account_type} onChange={(e) => setAccount({ ...account, account_type: e.target.value })} className={field} />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Routing number</label>
+                          <input value={account.routing_number} onChange={(e) => setAccount({ ...account, routing_number: e.target.value })} className={field} />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Número de cuenta</label>
+                          <input value={account.account_number} onChange={(e) => setAccount({ ...account, account_number: e.target.value })} className={field} />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Swift/BIC</label>
+                          <input value={account.swift_bic} onChange={(e) => setAccount({ ...account, swift_bic: e.target.value })} className={field} />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Dirección</label>
+                          <input value={account.address} onChange={(e) => setAccount({ ...account, address: e.target.value })} className={field} />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-sm font-semibold text-content-primary">Tarjeta — últimos 4 dígitos</label>
+                          <input value={account.card_last4} onChange={(e) => setAccount({ ...account, card_last4: e.target.value })} maxLength={4} className={field} />
+                        </div>
                       </div>
-                      <button onClick={saveAccount} className="btn-primary mt-4 px-6 py-2.5">Guardar cuenta</button>
+                      <button onClick={saveAccount} className="btn-primary mt-5 px-6 py-2.5">Guardar cuenta</button>
                     </section>
                   </div>
                 )}
