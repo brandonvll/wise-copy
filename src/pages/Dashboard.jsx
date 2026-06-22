@@ -12,7 +12,7 @@ const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigit
 const actions = ['Send', 'Add money', 'Request', 'Upload']
 
 export default function Dashboard() {
-  const { id, client, ready, viewAs } = useViewer()
+  const { id, client, ready } = useViewer()
   const [account, setAccount] = useState(null)
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
@@ -75,15 +75,9 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-center rounded-card-lg bg-bg-neutral p-8 text-center">
           <h3 className="mb-2 text-2xl font-bold text-content-primary">Haz más con tu dinero</h3>
           <p className="mb-6 text-content-secondary">Gestiónalo, compártelo con otros y genera retorno.</p>
-          {viewAs ? (
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
-              <span className="text-3xl font-bold leading-none">+</span>
-            </span>
-          ) : (
-            <Link to="/admin" className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
-              <span className="text-3xl font-bold leading-none">+</span>
-            </Link>
-          )}
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
+            <span className="text-3xl font-bold leading-none">+</span>
+          </span>
         </div>
       </div>
 
@@ -97,7 +91,7 @@ export default function Dashboard() {
           <p className="py-8 text-content-tertiary">Cargando…</p>
         ) : txns.length === 0 ? (
           <p className="rounded-card bg-bg-neutral py-12 text-center text-content-tertiary">
-            Aún no hay transacciones. Agrégalas desde <Link to="/admin" className="font-semibold underline">/admin</Link>.
+            Aún no hay transacciones.
           </p>
         ) : (
           <ul className="divide-y divide-black/5">

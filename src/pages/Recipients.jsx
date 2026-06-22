@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Logo from '../components/Logo.jsx'
@@ -35,9 +34,9 @@ export default function Recipients() {
         <h1 className="mb-5 text-4xl font-extrabold text-content-primary">Recipients</h1>
 
         <div className="relative mb-10 flex gap-3">
-          <Link to="/admin" className="flex items-center gap-2 rounded-pill bg-bright-green px-5 py-2.5 font-semibold text-forest hover:bg-bright-green-hover">
+          <button className="flex items-center gap-2 rounded-pill bg-bright-green px-5 py-2.5 font-semibold text-forest hover:bg-bright-green-hover">
             <span className="text-lg leading-none">+</span> Add
-          </Link>
+          </button>
           <button className="flex items-center gap-2 rounded-pill bg-bright-green/30 px-5 py-2.5 font-semibold text-forest hover:bg-bright-green/50">
             <Icon name="search" size={18} /> Upload
           </button>
@@ -58,7 +57,7 @@ export default function Recipients() {
           <p className="py-10 text-content-tertiary">Cargando…</p>
         ) : list.length === 0 ? (
           <p className="rounded-card bg-bg-neutral py-16 text-center text-content-tertiary">
-            Aún no hay destinatarios. Agrégalos desde <Link to="/admin" className="font-semibold underline">/admin</Link>.
+            Aún no hay destinatarios.
           </p>
         ) : (
           <ul className="divide-y divide-black/5">

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Icon from '../components/Icon.jsx'
@@ -80,9 +80,7 @@ export default function Transactions() {
           <p className="py-10 text-content-tertiary">Cargando…</p>
         ) : groups.length === 0 ? (
           <p className="rounded-card bg-bg-neutral py-16 text-center text-content-tertiary">
-            {q ? 'Sin resultados.' : (
-              <>Aún no hay transacciones. Agrégalas desde <Link to="/admin" className="font-semibold underline">/admin</Link>.</>
-            )}
+            {q ? 'Sin resultados.' : 'Aún no hay transacciones.'}
           </p>
         ) : (
           <div className="space-y-8">
