@@ -88,3 +88,6 @@ begin
   delete from auth.users where id = target;
 end;
 $$;
+
+-- Recargar el caché del API para que la función RPC quede disponible de inmediato
+notify pgrst, 'reload schema';
