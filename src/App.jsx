@@ -26,6 +26,7 @@ import DirectDebits from './pages/DirectDebits.jsx'
 import YourAccount from './pages/YourAccount.jsx'
 import Inbox from './pages/Inbox.jsx'
 import Pricing from './pages/Pricing.jsx'
+import AccountDetails from './pages/AccountDetails.jsx'
 import Admin from './pages/Admin.jsx'
 import NotFound from './pages/NotFound.jsx'
 
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="/transactions" element={<Protected><Transactions /></Protected>} />
           <Route path="/recipients" element={<Protected><Recipients /></Protected>} />
           <Route path="/insights" element={<Protected><Insights /></Protected>} />
+          <Route path="/payments/account-details" element={<Protected><AccountDetails /></Protected>} />
           <Route path="/payments/scheduled" element={<Protected><Scheduled /></Protected>} />
           <Route path="/payments/direct-debits" element={<Protected><DirectDebits /></Protected>} />
           <Route path="/payments/recurring" element={<Protected><Recurring /></Protected>} />

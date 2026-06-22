@@ -66,9 +66,9 @@ export default function Dashboard() {
               <span className="text-lg font-bold text-content-primary">{SYMBOL[currency] || ''}{fmt(balance)}</span>
               <Icon name="chevronRight" size={16} className="text-content-tertiary" />
             </div>
-            <button className="flex items-center gap-2 rounded-pill bg-white px-4 py-2.5 font-semibold text-content-primary shadow-sm">
+            <Link to="/payments/account-details" className="flex items-center gap-2 rounded-pill bg-white px-4 py-2.5 font-semibold text-content-primary shadow-sm">
               <Icon name="bank" size={18} /> Datos de la cuenta
-            </button>
+            </Link>
           </div>
         </div>
 
