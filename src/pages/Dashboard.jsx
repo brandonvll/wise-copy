@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
@@ -13,18 +12,18 @@ const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigit
 const actions = ['Send', 'Add money', 'Request', 'Upload']
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { id, client, ready, viewAs } = useViewer()
   const [account, setAccount] = useState(null)
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) return
+    if (!ready || !id) return
     let active = true
     ;(async () => {
       const [{ data: a }, { data: t }] = await Promise.all([
-        supabase.from('accounts').select('*').eq('user_id', user.id).order('created_at').limit(1).maybeSingle(),
-        supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false }),
+        client.from('accounts').select('*').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
+        client.from('transactions').select('*').eq('user_id', id).order('date', { ascending: false }),
       ])
       if (!active) return
       setAccount(a)
@@ -32,7 +31,7 @@ export default function Dashboard() {
       setLoading(false)
     })()
     return () => { active = false }
-  }, [user])
+  }, [id, ready, client])
 
   const currency = account?.currency || 'USD'
   const balance = account?.balance ?? 0
@@ -76,9 +75,15 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-center rounded-card-lg bg-bg-neutral p-8 text-center">
           <h3 className="mb-2 text-2xl font-bold text-content-primary">Haz más con tu dinero</h3>
           <p className="mb-6 text-content-secondary">Gestiónalo, compártelo con otros y genera retorno.</p>
-          <Link to="/admin" className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
-            <span className="text-3xl font-bold leading-none">+</span>
-          </Link>
+          {viewAs ? (
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
+              <span className="text-3xl font-bold leading-none">+</span>
+            </span>
+          ) : (
+            <Link to="/admin" className="flex h-14 w-14 items-center justify-center rounded-full bg-bright-green text-forest">
+              <span className="text-3xl font-bold leading-none">+</span>
+            </Link>
+          )}
         </div>
       </div>
 

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Icon from '../components/Icon.jsx'
 
@@ -15,24 +14,24 @@ const fmtDate = (d) => {
 }
 
 export default function Transactions() {
-  const { user } = useAuth()
+  const { id, client, ready } = useViewer()
   const navigate = useNavigate()
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
 
   useEffect(() => {
-    if (!user) return
-    supabase
+    if (!ready || !id) return
+    client
       .from('transactions')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', id)
       .order('date', { ascending: false })
       .then(({ data }) => {
         setTxns(data || [])
         setLoading(false)
       })
-  }, [user])
+  }, [id, ready, client])
 
   const groups = useMemo(() => {
     const filtered = txns.filter((t) => t.name?.toLowerCase().includes(q.toLowerCase()))

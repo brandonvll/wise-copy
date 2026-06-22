@@ -4,6 +4,7 @@ import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import FloatingQR from './components/FloatingQR.jsx'
 import { useAuth } from './context/AuthContext.jsx'
+import { ViewAsProvider, useViewer } from './context/ViewAsContext.jsx'
 import Home from './pages/Home.jsx'
 import Personal from './pages/Personal.jsx'
 import Business from './pages/Business.jsx'
@@ -24,7 +25,6 @@ import BillSplits from './pages/BillSplits.jsx'
 import DirectDebits from './pages/DirectDebits.jsx'
 import YourAccount from './pages/YourAccount.jsx'
 import Admin from './pages/Admin.jsx'
-import AdminUserPreview from './pages/AdminUserPreview.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 // Prefijos de rutas de app/auth: sin barra ni pie de marketing
@@ -38,11 +38,12 @@ function ScrollToTop() {
   return null
 }
 
-// Ruta protegida: requiere sesión activa Y que el usuario ya haya creado su contraseña.
-// Si tiene sesión pero aún no fija su contraseña (primer acceso por código), lo manda
-// a /login para completar ese paso — así no se puede saltar recargando o navegando.
+// Ruta protegida: requiere sesión activa Y contraseña creada.
+// Excepción: en modo "ver como usuario" (preview del admin) se permite (acceso vía adminClient).
 function Protected({ children }) {
   const { session, user, loading } = useAuth()
+  const { viewAs } = useViewer()
+  if (viewAs) return children
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center text-content-tertiary">Cargando…</div>
   }
@@ -57,6 +58,7 @@ export default function App() {
   const bare = APP_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
   return (
+    <ViewAsProvider>
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
       {!bare && <Navbar />}
@@ -77,7 +79,6 @@ export default function App() {
           <Route path="/cards" element={<Protected><Cards /></Protected>} />
           <Route path="/your-account" element={<Protected><YourAccount /></Protected>} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/preview/:userId" element={<AdminUserPreview />} />
           <Route path="/transactions" element={<Protected><Transactions /></Protected>} />
           <Route path="/recipients" element={<Protected><Recipients /></Protected>} />
           <Route path="/insights" element={<Protected><Insights /></Protected>} />
@@ -92,5 +93,6 @@ export default function App() {
       {!bare && <Footer />}
       {!bare && <FloatingQR />}
     </div>
+    </ViewAsProvider>
   )
 }

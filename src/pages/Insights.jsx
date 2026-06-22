@@ -1,30 +1,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Icon from '../components/Icon.jsx'
 
 const fmt = (n) => Math.abs(Number(n || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export default function Insights() {
-  const { user } = useAuth()
+  const { id, client, ready } = useViewer()
   const [account, setAccount] = useState(null)
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) return
+    if (!ready || !id) return
     ;(async () => {
       const [{ data: a }, { data: t }] = await Promise.all([
-        supabase.from('accounts').select('*').eq('user_id', user.id).order('created_at').limit(1).maybeSingle(),
-        supabase.from('transactions').select('*').eq('user_id', user.id),
+        client.from('accounts').select('*').eq('user_id', id).order('created_at').limit(1).maybeSingle(),
+        client.from('transactions').select('*').eq('user_id', id),
       ])
       setAccount(a)
       setTxns(t || [])
       setLoading(false)
     })()
-  }, [user])
+  }, [id, ready, client])
 
   const cur = account?.currency || 'USD'
   const balance = account?.balance ?? 0

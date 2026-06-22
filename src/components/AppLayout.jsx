@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useViewer } from '../context/ViewAsContext.jsx'
 import Logo from './Logo.jsx'
 import Icon from './Icon.jsx'
 
@@ -24,19 +23,19 @@ const bottomNav = [
 
 export default function AppLayout({ children }) {
   const { pathname } = useLocation()
-  const { user } = useAuth()
+  const { viewAs, id, client, name: viewName, ready } = useViewer()
   const [paymentsOpen, setPaymentsOpen] = useState(true)
   const [name, setName] = useState('')
 
   useEffect(() => {
-    if (!user) return
-    supabase
+    if (!ready || !id) return
+    client
       .from('profiles')
       .select('full_name')
-      .eq('id', user.id)
+      .eq('id', id)
       .maybeSingle()
-      .then(({ data }) => setName(data?.full_name || user.email?.split('@')[0] || 'Usuario'))
-  }, [user])
+      .then(({ data }) => setName(data?.full_name || viewName || 'Usuario'))
+  }, [id, ready, client, viewName])
 
   const isActive = (to) => pathname === to
   const navClass = (active) =>
@@ -44,22 +43,30 @@ export default function AppLayout({ children }) {
       active ? 'bg-bright-green/30 text-forest' : 'text-content-secondary hover:bg-bg-neutral'
     }`
 
+  const Profile = viewAs ? 'span' : Link
+  const profileProps = viewAs ? {} : { to: '/your-account' }
+
   return (
     <div className="min-h-screen bg-white">
+      {viewAs && (
+        <div className="bg-forest px-5 py-2 text-center text-sm font-semibold text-bright-green">
+          Vista previa — así ve {name || viewName} su cuenta (solo lectura)
+        </div>
+      )}
       {/* Top bar */}
       <header>
         <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5">
           <Link to="/home"><Logo height={24} /></Link>
           <div className="flex items-center gap-3">
             <span className="hidden rounded-pill bg-bright-green/30 px-4 py-2 text-sm font-semibold text-forest sm:inline">Gana £50</span>
-            <Link to="/your-account" className="flex items-center gap-2 rounded-pill px-2 py-1.5 hover:bg-bg-neutral">
+            <Profile {...profileProps} className="flex items-center gap-2 rounded-pill px-2 py-1.5 hover:bg-bg-neutral">
               <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-bg-neutral font-bold text-content-secondary">
                 {(name || 'U').charAt(0).toUpperCase()}
                 <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
               </span>
               <span className="hidden font-semibold text-content-primary sm:inline">{name}</span>
               <Icon name="chevronRight" size={16} className="text-content-tertiary" />
-            </Link>
+            </Profile>
           </div>
         </div>
       </header>

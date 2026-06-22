@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useViewer } from '../context/ViewAsContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
@@ -12,23 +11,23 @@ const initials = (name) => {
 }
 
 export default function Recipients() {
-  const { user } = useAuth()
+  const { id, client, ready } = useViewer()
   const [list, setList] = useState([])
   const [loading, setLoading] = useState(true)
   const [tip, setTip] = useState(true)
 
   useEffect(() => {
-    if (!user) return
-    supabase
+    if (!ready || !id) return
+    client
       .from('recipients')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', id)
       .order('full_name')
       .then(({ data }) => {
         setList(data || [])
         setLoading(false)
       })
-  }, [user])
+  }, [id, ready, client])
 
   return (
     <AppLayout>

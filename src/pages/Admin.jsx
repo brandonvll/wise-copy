@@ -119,6 +119,7 @@ export default function Admin() {
       username: uname,
       email: newUser.email.trim() || null,
       full_name: newUser.full_name || null,
+      password: newUser.password,
     })
     if (insErr) flash('Usuario creado, pero no se registró: ' + insErr.message)
     else flash('Usuario creado ✓')
@@ -300,6 +301,7 @@ export default function Admin() {
                       <span className="flex-1">
                         <span className="block font-semibold text-content-primary">{u.full_name || u.username || u.email}</span>
                         <span className="block text-sm text-content-tertiary">@{u.username}{u.email ? ` · ${u.email}` : ''}</span>
+                        {u.password && <span className="block text-sm text-content-tertiary">Clave: <b className="font-mono text-content-secondary">{u.password}</b></span>}
                       </span>
                       <button onClick={() => openUser(u)} className="rounded-pill bg-bright-green px-4 py-2 font-semibold text-forest">Administrar</button>
                       <button onClick={() => setConfirmDel(u)} className="rounded-lg p-2 text-red-500 hover:bg-red-50" aria-label="Eliminar usuario">
@@ -322,7 +324,7 @@ export default function Admin() {
             <div className="mb-1 flex items-start justify-between gap-4">
               <h1 className="text-3xl font-extrabold text-content-primary">{selected.full_name || selected.username}</h1>
               <button
-                onClick={() => window.open(`/admin/preview/${selected.user_id}`, '_blank', 'noopener')}
+                onClick={() => window.open(`/home?viewAs=${selected.user_id}`, '_blank', 'noopener')}
                 className="flex shrink-0 items-center gap-2 rounded-pill border border-black/15 px-4 py-2 font-semibold text-content-primary transition-colors hover:border-content-primary"
               >
                 <Icon name="eye" size={18} /> Ver como el usuario
