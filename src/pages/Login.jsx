@@ -59,11 +59,13 @@ export default function Login() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [cooldown, setCooldown] = useState(0)
+  const [flowAuthed, setFlowAuthed] = useState(false) // se autenticó en ESTA pantalla (no sesión restaurada)
 
   const pwSet = !!user?.user_metadata?.password_set
-  // Con sesión y contraseña ya creada → al dashboard.
-  // Con sesión pero SIN contraseña creada → forzar la pantalla de crear contraseña.
-  const showSetPass = !!session && !pwSet
+  // "Crea tu contraseña" se muestra solo si el usuario acaba de verificar el código
+  // o de iniciar sesión aquí y aún no tiene contraseña. Una sesión vieja restaurada
+  // NO fuerza esta pantalla: ahí se ve el formulario normal de correo + contraseña.
+  const showSetPass = (mode === 'code' && step === 'setpass') || (flowAuthed && !!session && !pwSet)
 
   // cuenta regresiva para reenviar
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function Login() {
         setError(isRate(error) ? 'Demasiados intentos. Espera un momento.' : 'Código incorrecto o vencido.')
         setCode('')
       } else {
-        setPassword(''); setPassword2('')
+        setPassword(''); setPassword2(''); setStep('setpass'); setFlowAuthed(true)
       }
     })()
   }, [code, step, mode, busy, session, email])
@@ -99,7 +101,9 @@ export default function Login() {
     const { error } = await signIn(email.trim(), password)
     setBusy(false)
     if (error) setError(traducir(error.message))
-    // si entra OK, el guard de arriba (session && pwSet) redirige; si falta contraseña, showSetPass lo lleva al paso
+    else setFlowAuthed(true)
+    // si entra OK con contraseña ya creada → el guard (session && pwSet) redirige a /home;
+    // si la cuenta aún no tiene contraseña → showSetPass lo lleva a crearla
   }
 
   // ---- Flujo de código: enviar código ----
