@@ -46,7 +46,7 @@ export default function CardDetail() {
       })
       const data = await r.json().catch(() => ({}))
       if (!r.ok || !data.token) {
-        setError(data.error === 'no-resend-key' ? 'Falta configurar Resend (RESEND_API_KEY) en Vercel.' : 'No se pudo enviar el código.')
+        setError(data.error === 'no-smtp' ? 'Falta configurar el correo (SMTP) en Vercel.' : 'No se pudo enviar el código.')
         setModal('error'); return
       }
       setToken(data.token); setCode(''); setModal('code')
