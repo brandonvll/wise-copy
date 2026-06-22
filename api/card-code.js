@@ -32,10 +32,22 @@ export default async function handler(req, res) {
         from: process.env.SMTP_FROM || `Wise <${user}>`,
         to: email,
         subject: 'Tu código de seguridad — datos de la tarjeta',
-        html: `<div style="font-family:Inter,Arial,sans-serif;color:#0E0F0C">
-          <p>Usa este código para ver los datos de tu tarjeta:</p>
-          <p style="font-size:30px;font-weight:800;letter-spacing:6px;color:#163300">${c}</p>
-          <p style="color:#6b6b6b">Vence en 10 minutos. Si no fuiste tú, ignora este correo.</p></div>`,
+        html: `<div style="margin:0;padding:32px 16px;background:#f0eeec;font-family:Inter,Helvetica,Arial,sans-serif">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+    <div style="background:#163300;padding:22px 28px">
+      <span style="display:inline-block;color:#9FE870;font-size:26px;font-weight:800;font-style:italic;letter-spacing:-1px">⁊ wise</span>
+    </div>
+    <div style="padding:32px 28px">
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#0E0F0C">Tu código de seguridad</h1>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#454745">Úsalo para ver los datos de tu tarjeta. Vence en 10 minutos.</p>
+      <div style="background:#9FE870;border-radius:16px;text-align:center;padding:22px 12px">
+        <span style="font-size:40px;font-weight:800;letter-spacing:12px;color:#163300">${c}</span>
+      </div>
+      <p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#9a9a9a">Si no fuiste tú, ignora este correo. Nunca compartas este código con nadie.</p>
+    </div>
+    <div style="background:#f0eeec;padding:16px 28px;text-align:center;font-size:12px;color:#9a9a9a">Wise — Tu dinero, protegido</div>
+  </div>
+</div>`,
       })
     } catch (e) {
       return res.status(502).json({ error: 'send-failed', detail: String(e?.message || e) })
