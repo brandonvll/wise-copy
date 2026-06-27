@@ -5,6 +5,7 @@ import Footer from './components/Footer.jsx'
 import FloatingQR from './components/FloatingQR.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 import { ViewAsProvider, useViewer } from './context/ViewAsContext.jsx'
+import IdleTimeout from './components/IdleTimeout.jsx'
 import Home from './pages/Home.jsx'
 import Personal from './pages/Personal.jsx'
 import Business from './pages/Business.jsx'
@@ -66,6 +67,7 @@ export default function App() {
     <ViewAsProvider>
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
+      <IdleTimeout />
       {!bare && <Navbar />}
       <main id="main" className="flex-1">
         <Routes>

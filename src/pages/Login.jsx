@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import AuthHeader from '../components/AuthHeader.jsx'
 import Icon from '../components/Icon.jsx'
@@ -30,6 +30,13 @@ export default function Login() {
   const [show, setShow] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [idleNotice, setIdleNotice] = useState(false)
+  useEffect(() => {
+    if (sessionStorage.getItem('idleLogout') === '1') {
+      sessionStorage.removeItem('idleLogout')
+      setIdleNotice(true)
+    }
+  }, [])
 
   const pwSet = !!user?.user_metadata?.password_set
   if (session && pwSet) return <Navigate to="/home" replace />
@@ -49,6 +56,11 @@ export default function Login() {
     <div className="min-h-screen bg-white">
       <AuthHeader />
       <div className="mx-auto w-full max-w-[480px] px-5 py-12 md:py-16">
+        {idleNotice && (
+          <div className="mb-6 rounded-xl bg-bright-green/20 px-4 py-3 text-center text-sm font-medium text-forest">
+            Tu sesión se cerró por seguridad tras 3 minutos de inactividad.
+          </div>
+        )}
         <h1 className="mb-3 text-center text-[1.4rem] font-bold leading-tight text-content-primary">Te damos la bienvenida de nuevo</h1>
         <p className="mb-8 text-center text-content-secondary">
           ¿Por primera vez en Wise?{' '}
