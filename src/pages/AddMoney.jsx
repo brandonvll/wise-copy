@@ -35,7 +35,10 @@ export default function AddMoney() {
     const v = e.target.value.replace(/[^\d.]/g, '')
     if (/^\d*\.?\d{0,2}$/.test(v)) setAmount(v)
   }
-  const canContinue = (parseFloat(amount) || 0) > 0
+  const value = parseFloat(amount) || 0
+  const canContinue = value > 0
+  const fee = value * 0.0017 // comisión ACH (0.17%)
+  const total = value + fee
 
   return (
     <div className="min-h-screen bg-white">
@@ -90,23 +93,60 @@ export default function AddMoney() {
             onBlur={() => setFocused(false)}
             inputMode="decimal"
             placeholder="0.00"
-            className={`min-w-0 flex-1 bg-transparent text-right font-display font-black leading-none text-content-primary outline-none transition-all duration-200 placeholder:text-content-secondary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
+            className={`min-w-0 flex-1 bg-transparent text-right font-display font-black leading-none text-forest outline-none transition-all duration-200 placeholder:text-content-secondary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
           />
         </div>
 
-        <div className="mt-16 space-y-1.5 rounded-card-lg bg-bg-neutral p-1.5">
-          {!canContinue && (
+        {canContinue ? (
+          <div className="mt-6">
+            <div className="divide-y divide-black/5 border-t border-black/10">
+              {/* Paying in */}
+              <div className="flex items-center gap-4 py-4">
+                <img src={`https://flagcdn.com/w80/${FLAG[currency] || 'us'}.png`} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" />
+                <div className="flex-1">
+                  <p className="text-sm text-content-secondary">Paying in</p>
+                  <p className="font-bold text-content-primary">United States dollar</p>
+                </div>
+                <button className="rounded-pill bg-bright-green/25 px-4 py-1.5 font-semibold text-forest hover:bg-bright-green/40">Change</button>
+              </div>
+              {/* Paying with */}
+              <div className="flex items-center gap-4 py-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/15 text-content-primary"><Icon name="bank" size={22} /></span>
+                <div className="flex-1">
+                  <p className="text-sm text-content-secondary">Paying with</p>
+                  <p className="font-bold text-content-primary">Connected bank account (ACH)</p>
+                </div>
+                <button className="rounded-pill bg-bright-green/25 px-4 py-1.5 font-semibold text-forest hover:bg-bright-green/40">Change</button>
+              </div>
+              {/* Arrives */}
+              <div className="flex items-center gap-4 py-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/15 text-content-primary"><Icon name="zap" size={22} /></span>
+                <div className="flex-1">
+                  <p className="text-sm text-content-secondary">Arrives</p>
+                  <p className="font-bold text-content-primary">Today - in seconds</p>
+                </div>
+              </div>
+              {/* You pay */}
+              <div className="flex items-center gap-4 py-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/15 text-content-primary"><Icon name="doc" size={22} /></span>
+                <div className="flex-1">
+                  <p className="text-sm text-content-secondary">You pay</p>
+                  <p className="font-bold text-content-primary">Total with fees</p>
+                  <p className="text-sm text-content-tertiary">{fmt(fee)} USD in fees</p>
+                </div>
+                <button className="flex items-center gap-1 font-semibold text-content-primary underline underline-offset-4">{fmt(total)} USD <Icon name="chevronRight" size={16} /></button>
+              </div>
+            </div>
+            <button className="btn-primary mt-6 w-full py-4">Continue</button>
+          </div>
+        ) : (
+          <div className="mt-16 space-y-1.5 rounded-card-lg bg-bg-neutral p-1.5">
             <p className="flex items-center justify-center gap-2 py-3 text-content-secondary">
               <Icon name="info" size={16} className="text-content-tertiary" /> Enter the amount you wish to add
             </p>
-          )}
-          <button
-            disabled={!canContinue}
-            className={`w-full rounded-card py-4 font-semibold transition-colors ${canContinue ? 'bg-bright-green text-forest hover:bg-bright-green-hover' : 'cursor-default bg-black/10 text-content-tertiary'}`}
-          >
-            Continue
-          </button>
-        </div>
+            <button disabled className="w-full cursor-default rounded-card bg-black/10 py-4 font-semibold text-content-tertiary">Continue</button>
+          </div>
+        )}
       </div>
 
       {/* Modal: Add to (selector de cuenta) */}
