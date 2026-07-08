@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo.jsx'
+import LogoMark from '../components/LogoMark.jsx'
 import Icon from '../components/Icon.jsx'
 
 export default function AddMoney() {
@@ -32,7 +33,7 @@ export default function AddMoney() {
             <div className="h-1 overflow-hidden rounded-full bg-black/10">
               <div className="h-full w-1/3 rounded-full bg-forest transition-all" />
             </div>
-            <div className="flex items-center justify-between gap-14 text-[15px] font-semibold">
+            <div className="flex items-center justify-between gap-24 text-[15px] font-semibold">
               <span className="text-content-primary">Amount</span>
               <span className="text-content-tertiary">Verification</span>
               <span className="text-content-tertiary">Payment</span>
@@ -57,6 +58,9 @@ export default function AddMoney() {
 
         <div className="flex items-center justify-between gap-4">
           <button className="flex shrink-0 items-center gap-2 rounded-pill bg-bright-green/25 px-3 py-2 font-bold text-content-primary">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bright-green">
+              <LogoMark height={13} />
+            </span>
             <img src="https://flagcdn.com/w80/us.png" alt="" className="h-6 w-6 rounded-full object-cover" />
             USD <Icon name="chevronDown" size={16} className="text-content-tertiary" />
           </button>
@@ -68,7 +72,7 @@ export default function AddMoney() {
             onBlur={() => setFocused(false)}
             inputMode="decimal"
             placeholder="0.00"
-            className={`min-w-0 flex-1 bg-transparent text-right font-black leading-none text-content-primary outline-none transition-all duration-200 placeholder:text-content-tertiary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
+            className={`min-w-0 flex-1 bg-transparent text-right font-black leading-none text-content-primary outline-none transition-all duration-200 placeholder:text-content-secondary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
           />
         </div>
 
