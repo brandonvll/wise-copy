@@ -1,19 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useViewer } from '../context/ViewAsContext.jsx'
 import Logo from '../components/Logo.jsx'
 import LogoMark from '../components/LogoMark.jsx'
 import Icon from '../components/Icon.jsx'
 
+const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const FLAG = { USD: 'us', EUR: 'eu', GBP: 'gb', COP: 'co', MXN: 'mx', BRL: 'br' }
+
 export default function AddMoney() {
   const navigate = useNavigate()
+  const { id, client, ready } = useViewer()
   const [amount, setAmount] = useState('')
   const [focused, setFocused] = useState(false)
+  const [showPicker, setShowPicker] = useState(false)
+  const [account, setAccount] = useState(null)
   const inputRef = useRef(null)
 
   // Arranca enfocado (grande); al hacer clic afuera se achica.
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
+
+  useEffect(() => {
+    if (!ready || !id) return
+    client.from('accounts').select('balance, currency').eq('user_id', id).order('created_at').limit(1).maybeSingle()
+      .then(({ data }) => setAccount(data))
+  }, [id, ready, client])
+
+  const balance = account?.balance ?? 0
+  const currency = account?.currency || 'USD'
 
   const onChange = (e) => {
     const v = e.target.value.replace(/[^\d.]/g, '')
@@ -57,12 +73,14 @@ export default function AddMoney() {
         </p>
 
         <div className="flex items-center justify-between gap-4">
-          <button className="flex shrink-0 items-center gap-2 rounded-pill bg-bright-green/25 px-3 py-2 font-bold text-content-primary">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bright-green">
-              <LogoMark height={13} />
+          <button onClick={() => setShowPicker(true)} className="flex shrink-0 items-center gap-2 rounded-pill bg-bg-neutral px-2.5 py-2 font-bold text-content-primary hover:bg-black/10">
+            <span className="flex items-center">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bright-green">
+                <LogoMark height={13} />
+              </span>
+              <img src="https://flagcdn.com/w80/us.png" alt="" className="-ml-2.5 h-6 w-6 rounded-full object-cover ring-2 ring-bg-neutral" />
             </span>
-            <img src="https://flagcdn.com/w80/us.png" alt="" className="h-6 w-6 rounded-full object-cover" />
-            USD <Icon name="chevronDown" size={16} className="text-content-tertiary" />
+            {currency} <Icon name="chevronDown" size={16} className="text-content-tertiary" />
           </button>
           <input
             ref={inputRef}
@@ -90,6 +108,32 @@ export default function AddMoney() {
           </button>
         </div>
       </div>
+
+      {/* Modal: Add to (selector de cuenta) */}
+      {showPicker && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-5 pt-20" onClick={() => setShowPicker(false)}>
+          <div className="w-full max-w-lg rounded-card-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-5 flex items-start justify-between">
+              <h3 className="text-2xl font-bold text-content-primary">Add to</h3>
+              <button onClick={() => setShowPicker(false)} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-neutral text-content-primary hover:bg-black/10">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="overflow-hidden rounded-card-lg border border-black/10">
+              <div className="flex items-center gap-3 border-b border-black/5 px-4 py-4">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bright-green"><LogoMark height={17} /></span>
+                <span className="flex-1 font-bold text-content-primary">Main account</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-neutral text-xl leading-none text-content-primary">+</span>
+              </div>
+              <button onClick={() => setShowPicker(false)} className="flex w-full items-center gap-3 px-4 py-4 text-left hover:bg-bg-neutral">
+                <img src={`https://flagcdn.com/w80/${FLAG[currency] || 'us'}.png`} alt="" className="h-9 w-9 rounded-full object-cover" />
+                <span className="flex-1 font-bold text-content-primary">{fmt(balance)} {currency}</span>
+                <Icon name="chevronRight" size={20} className="text-content-tertiary" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
