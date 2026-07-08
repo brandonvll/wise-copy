@@ -95,7 +95,7 @@ export default function AddMoney() {
               className="max-w-full bg-transparent text-right outline-none placeholder:text-content-secondary"
               style={{ width: `${Math.max((amount ? display : '0.00').length, 1)}ch` }}
             />
-            {amount && <span>.00</span>}
+            {amount && !focused && <span>.00</span>}
           </div>
         </div>
 
