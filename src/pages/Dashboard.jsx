@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
 import { shortDate } from '../lib/date.js'
 import { ACCOUNT_DEFAULTS } from '../lib/account.js'
@@ -16,6 +16,7 @@ const actions = ['Send', 'Add money', 'Request', 'Upload']
 
 export default function Dashboard() {
   const { id, client, ready } = useViewer()
+  const navigate = useNavigate()
   const [account, setAccount] = useState(null)
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
@@ -46,7 +47,7 @@ export default function Dashboard() {
       {/* Acciones */}
       <div className="mb-8 flex flex-wrap gap-3">
         {actions.map((a) => (
-          <button key={a} onClick={() => setShowActionModal(true)} className="rounded-pill bg-bright-green/30 px-5 py-2.5 font-semibold text-forest hover:bg-bright-green/50">
+          <button key={a} onClick={a === 'Add money' ? () => navigate('/flows/balances/add') : () => setShowActionModal(true)} className="rounded-pill bg-bright-green/30 px-5 py-2.5 font-semibold text-forest hover:bg-bright-green/50">
             {a}
           </button>
         ))}

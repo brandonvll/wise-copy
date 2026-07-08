@@ -30,6 +30,7 @@ import Inbox from './pages/Inbox.jsx'
 import Pricing from './pages/Pricing.jsx'
 import AccountDetails from './pages/AccountDetails.jsx'
 import DoMore from './pages/DoMore.jsx'
+import AddMoney from './pages/AddMoney.jsx'
 import Admin from './pages/Admin.jsx'
 import NotFound from './pages/NotFound.jsx'
 
@@ -94,6 +95,7 @@ export default function App() {
           <Route path="/insights" element={<Protected><Insights /></Protected>} />
           <Route path="/payments/account-details" element={<Protected><AccountDetails /></Protected>} />
           <Route path="/flows/account/open" element={<Protected><DoMore /></Protected>} />
+          <Route path="/flows/balances/add" element={<Protected><AddMoney /></Protected>} />
           <Route path="/payments/scheduled" element={<Protected><Scheduled /></Protected>} />
           <Route path="/payments/direct-debits" element={<Protected><DirectDebits /></Protected>} />
           <Route path="/payments/recurring" element={<Protected><Recurring /></Protected>} />
