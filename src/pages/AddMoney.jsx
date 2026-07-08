@@ -24,7 +24,7 @@ export default function AddMoney() {
   return (
     <div className="min-h-screen bg-white">
       {/* header */}
-      <header>
+      <header className="border-b border-black/10">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Logo height={26} />
 
@@ -40,12 +40,12 @@ export default function AddMoney() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-neutral text-content-secondary">
-              <Icon name="user" size={20} />
+          <div className="flex items-center gap-4">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-bg-neutral text-content-secondary">
+              <Icon name="user" size={26} />
             </span>
             <button onClick={() => navigate('/home')} aria-label="Cerrar" className="text-content-primary hover:text-content-secondary">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
           </div>
         </div>
