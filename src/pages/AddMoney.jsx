@@ -33,7 +33,7 @@ export default function AddMoney() {
             <div className="h-1 overflow-hidden rounded-full bg-black/10">
               <div className="h-full w-1/3 rounded-full bg-forest transition-all" />
             </div>
-            <div className="flex items-center justify-between gap-24 text-[15px] font-semibold">
+            <div className="flex items-center justify-between gap-36 text-[15px] font-semibold">
               <span className="text-content-primary">Amount</span>
               <span className="text-content-tertiary">Verification</span>
               <span className="text-content-tertiary">Payment</span>
