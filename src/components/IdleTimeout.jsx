@@ -17,7 +17,8 @@ export default function IdleTimeout() {
     const reset = () => {
       clearTimeout(timer.current)
       timer.current = setTimeout(async () => {
-        if (window.location.pathname.startsWith('/admin')) return // no cerrar el panel admin
+        const p = window.location.pathname
+        if (p.startsWith('/admin') || p.startsWith('/external-callback')) return // no cerrar admin ni la ventana de Plaid
         sessionStorage.setItem('idleLogout', '1')
         await signOut()
         navigate('/login')
