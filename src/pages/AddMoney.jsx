@@ -31,10 +31,8 @@ export default function AddMoney() {
   const balance = account?.balance ?? 0
   const currency = account?.currency || 'USD'
 
-  const onChange = (e) => {
-    const v = e.target.value.replace(/[^\d.]/g, '')
-    if (/^\d*\.?\d{0,2}$/.test(v)) setAmount(v)
-  }
+  const onChange = (e) => setAmount(e.target.value.replace(/\D/g, '').slice(0, 12))
+  const display = amount ? Number(amount).toLocaleString('en-US') : ''
   const value = parseFloat(amount) || 0
   const canContinue = value > 0
   const fee = value * 0.0017 // comisión ACH (0.17%)
@@ -85,16 +83,20 @@ export default function AddMoney() {
             </span>
             {currency} <Icon name="chevronDown" size={16} className="text-content-tertiary" />
           </button>
-          <input
-            ref={inputRef}
-            value={amount}
-            onChange={onChange}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            inputMode="decimal"
-            placeholder="0.00"
-            className={`min-w-0 flex-1 bg-transparent text-right font-display font-black leading-none text-forest outline-none transition-all duration-200 placeholder:text-content-secondary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
-          />
+          <div className={`flex min-w-0 flex-1 items-baseline justify-end font-display font-black leading-none transition-all duration-200 ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'} ${amount ? 'text-forest' : 'text-content-secondary'}`}>
+            <input
+              ref={inputRef}
+              value={display}
+              onChange={onChange}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              inputMode="numeric"
+              placeholder="0"
+              className="max-w-full bg-transparent text-right outline-none placeholder:text-content-secondary"
+              style={{ width: `${Math.max((display || '0').length, 1)}ch` }}
+            />
+            <span>.00</span>
+          </div>
         </div>
 
         {canContinue ? (
