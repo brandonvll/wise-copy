@@ -22,26 +22,31 @@ export default function AddMoney() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* barra de progreso */}
-      <div className="h-1 w-full bg-black/5">
-        <div className="h-full w-1/3 bg-forest transition-all" />
-      </div>
-
       {/* header */}
       <header>
-        <div className="mx-auto flex max-w-6xl items-center gap-6 px-5 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Logo height={26} />
-          <div className="hidden flex-1 items-center gap-10 text-[15px] font-semibold sm:flex">
-            <span className="text-content-primary">Amount</span>
-            <span className="text-content-tertiary">Verification</span>
-            <span className="text-content-tertiary">Payment</span>
+
+          {/* pasos centrados con barra de progreso arriba */}
+          <div className="hidden flex-col items-stretch gap-2.5 sm:flex">
+            <div className="h-1 overflow-hidden rounded-full bg-black/10">
+              <div className="h-full w-1/3 rounded-full bg-forest transition-all" />
+            </div>
+            <div className="flex items-center justify-between gap-14 text-[15px] font-semibold">
+              <span className="text-content-primary">Amount</span>
+              <span className="text-content-tertiary">Verification</span>
+              <span className="text-content-tertiary">Payment</span>
+            </div>
           </div>
-          <span className="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-bg-neutral text-content-secondary sm:ml-0">
-            <Icon name="user" size={20} />
-          </span>
-          <button onClick={() => navigate('/home')} aria-label="Cerrar" className="text-content-primary hover:text-content-secondary">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-          </button>
+
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-neutral text-content-secondary">
+              <Icon name="user" size={20} />
+            </span>
+            <button onClick={() => navigate('/home')} aria-label="Cerrar" className="text-content-primary hover:text-content-secondary">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -75,7 +80,7 @@ export default function AddMoney() {
           )}
           <button
             disabled={!canContinue}
-            className={`w-full rounded-card py-4 font-semibold transition-colors ${canContinue ? 'bg-bright-green text-forest hover:bg-bright-green-hover' : 'cursor-default bg-transparent text-content-tertiary'}`}
+            className={`w-full rounded-card py-4 font-semibold transition-colors ${canContinue ? 'bg-bright-green text-forest hover:bg-bright-green-hover' : 'cursor-default bg-black/10 text-content-tertiary'}`}
           >
             Continue
           </button>
