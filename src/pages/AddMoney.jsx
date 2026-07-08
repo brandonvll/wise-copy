@@ -69,11 +69,11 @@ export default function AddMoney() {
       </header>
 
       <div className="mx-auto max-w-2xl px-5 pt-20 md:pt-28">
-        <p className="mb-10 text-center text-xl text-content-secondary">
+        <p className="mb-4 text-sm text-content-secondary">
           You add to <b className="text-content-primary">Main account</b>
         </p>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 border-y border-black/10 py-5">
           <button onClick={() => setShowPicker(true)} className="flex shrink-0 items-center gap-2 rounded-pill bg-bg-neutral px-2.5 py-2 font-bold text-content-primary hover:bg-black/10">
             <span className="flex items-center">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bright-green">
@@ -100,8 +100,8 @@ export default function AddMoney() {
         </div>
 
         {canContinue ? (
-          <div className="mt-6">
-            <div className="divide-y divide-black/5 border-t border-black/10">
+          <div>
+            <div>
               {/* Paying in */}
               <div className="flex items-center gap-4 py-4">
                 <img src={`https://flagcdn.com/w80/${FLAG[currency] || 'us'}.png`} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" />
@@ -121,7 +121,7 @@ export default function AddMoney() {
                 <button className="rounded-pill bg-bright-green/25 px-4 py-1.5 font-semibold text-forest hover:bg-bright-green/40">Change</button>
               </div>
               {/* Arrives */}
-              <div className="flex items-center gap-4 py-4">
+              <div className="flex items-center gap-4 border-t border-black/5 py-4">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/15 text-content-primary"><Icon name="zap" size={22} /></span>
                 <div className="flex-1">
                   <p className="text-sm text-content-secondary">Arrives</p>
