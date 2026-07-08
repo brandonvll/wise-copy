@@ -72,7 +72,7 @@ export default function AddMoney() {
             onBlur={() => setFocused(false)}
             inputMode="decimal"
             placeholder="0.00"
-            className={`min-w-0 flex-1 bg-transparent text-right font-black leading-none text-content-primary outline-none transition-all duration-200 placeholder:text-content-secondary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
+            className={`min-w-0 flex-1 bg-transparent text-right font-display font-black leading-none text-content-primary outline-none transition-all duration-200 placeholder:text-content-secondary ${focused ? 'text-[5.5rem]' : 'text-[3.25rem]'}`}
           />
         </div>
 
