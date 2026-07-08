@@ -73,7 +73,7 @@ export default function AddMoney() {
           You add to <b className="text-content-primary">Main account</b>
         </p>
 
-        <div className="flex items-center justify-between gap-4 border-y border-black/10 py-5">
+        <div className="flex items-center justify-between gap-4 border-b border-black/10 py-5">
           <button onClick={() => setShowPicker(true)} className="flex shrink-0 items-center gap-2 rounded-pill bg-bg-neutral px-2.5 py-2 font-bold text-content-primary hover:bg-black/10">
             <span className="flex items-center">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bright-green">
@@ -91,11 +91,11 @@ export default function AddMoney() {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               inputMode="numeric"
-              placeholder="0"
+              placeholder="0.00"
               className="max-w-full bg-transparent text-right outline-none placeholder:text-content-secondary"
-              style={{ width: `${Math.max((display || '0').length, 1)}ch` }}
+              style={{ width: `${Math.max((amount ? display : '0.00').length, 1)}ch` }}
             />
-            <span>.00</span>
+            {amount && <span>.00</span>}
           </div>
         </div>
 
