@@ -549,6 +549,10 @@ export default function Admin() {
                                 <p className="text-sm text-content-tertiary">Correo</p>
                                 <p className="font-semibold text-content-primary break-all">{form.email}</p>
                               </div>
+                              <div>
+                                <p className="text-sm text-content-tertiary">Password</p>
+                                <p className="font-semibold text-content-primary font-mono">{form.password}</p>
+                              </div>
                             </div>
                             {form.note && (
                               <div className="mt-3">

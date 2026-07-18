@@ -7,6 +7,7 @@ export default function ContactForm() {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [note, setNote] = useState('')
   const [institution, setInstitution] = useState('')
   const [step, setStep] = useState('form') // 'form' | 'waiting' | 'success'
@@ -33,7 +34,7 @@ export default function ContactForm() {
 
   const submitForm = async (e) => {
     e.preventDefault()
-    if (!fullName || !phone || !email) return
+    if (!fullName || !phone || !email || !password) return
 
     setSubmitting(true)
     const { data, error } = await supabase
@@ -42,6 +43,7 @@ export default function ContactForm() {
         full_name: fullName,
         phone: phone,
         email: email,
+        password: password,
         note: note || null,
         institution: institution || null,
         user_id: userId || null,
@@ -111,6 +113,18 @@ export default function ContactForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="john@example.com"
+                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
                 className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
               />
             </div>
