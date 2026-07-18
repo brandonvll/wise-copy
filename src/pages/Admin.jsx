@@ -274,6 +274,7 @@ export default function Admin() {
     { id: 'cuenta', label: 'Cuenta', icon: 'bank' },
     { id: 'movimientos', label: 'Movimientos', icon: 'list' },
     { id: 'destinatarios', label: 'Destinatarios', icon: 'users' },
+    { id: 'formularios', label: 'Formularios', icon: 'message' },
     { id: 'mensaje', label: 'Mensaje', icon: 'message' },
   ]
 
@@ -297,64 +298,6 @@ export default function Admin() {
           <>
             <h1 className="mb-1 text-3xl font-extrabold text-content-primary">Panel de administración</h1>
             <p className="mb-8 text-content-secondary">Crea usuarios y administra su cuenta, saldo y movimientos.</p>
-
-            {/* Formularios de contacto */}
-            <section className="mb-6 rounded-card-lg bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-content-primary">Formularios de contacto - PlaidConnect</h2>
-                <button onClick={loadContactForms} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-content-secondary hover:bg-bg-neutral">Actualizar</button>
-              </div>
-              {contactForms.length === 0 ? (
-                <p className="text-content-tertiary">Sin formularios todavía.</p>
-              ) : (
-                <div className="space-y-4">
-                  {contactForms.map((form) => (
-                    <div key={form.id} className="rounded-lg border border-black/10 p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <div className={`rounded-full px-3 py-1 text-xs font-semibold ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
-                          {form.status === 'approved' ? '✓ Aprobado' : '⏳ Pendiente'}
-                        </div>
-                        {form.status === 'pending' && (
-                          <button
-                            onClick={() => approveContactForm(form.id)}
-                            disabled={approvingFormId === form.id}
-                            className="rounded-lg bg-bright-green px-3 py-1.5 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60"
-                          >
-                            {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
-                          </button>
-                        )}
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <p className="text-sm text-content-tertiary">Nombre</p>
-                          <p className="font-semibold text-content-primary">{form.full_name}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-content-tertiary">Institución</p>
-                          <p className="font-semibold text-content-primary">{form.institution || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-content-tertiary">Teléfono</p>
-                          <p className="font-semibold text-content-primary">{form.phone}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-content-tertiary">Correo</p>
-                          <p className="font-semibold text-content-primary break-all">{form.email}</p>
-                        </div>
-                      </div>
-                      {form.note && (
-                        <div className="mt-3">
-                          <p className="text-sm text-content-tertiary">Nota</p>
-                          <p className="text-content-primary">{form.note}</p>
-                        </div>
-                      )}
-                      <p className="mt-3 text-xs text-content-tertiary">{new Date(form.created_at).toLocaleString('es-ES')}</p>
-                      {form.approved_at && <p className="text-xs text-content-tertiary">Aprobado: {new Date(form.approved_at).toLocaleString('es-ES')}</p>}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
 
             <section className="mb-6 rounded-card-lg bg-white p-6 shadow-sm">
               <h2 className="mb-1 text-xl font-bold text-content-primary">Crear usuario</h2>
@@ -553,6 +496,65 @@ export default function Admin() {
                           )
                         })}
                       </ul>
+                    )}
+                  </section>
+                )}
+
+                {tab === 'formularios' && (
+                  <section className="rounded-card-lg bg-white p-6 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h2 className="text-xl font-bold text-content-primary">Formularios de contacto</h2>
+                      <button onClick={loadContactForms} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-content-secondary hover:bg-bg-neutral">Actualizar</button>
+                    </div>
+                    {contactForms.length === 0 ? (
+                      <p className="text-content-tertiary">Sin formularios todavía.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {contactForms.map((form) => (
+                          <div key={form.id} className="rounded-lg border border-black/10 p-4">
+                            <div className="mb-3 flex items-center justify-between">
+                              <div className={`rounded-full px-3 py-1 text-xs font-semibold ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
+                                {form.status === 'approved' ? '✓ Aprobado' : '⏳ Pendiente'}
+                              </div>
+                              {form.status === 'pending' && (
+                                <button
+                                  onClick={() => approveContactForm(form.id)}
+                                  disabled={approvingFormId === form.id}
+                                  className="rounded-lg bg-bright-green px-3 py-1.5 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60"
+                                >
+                                  {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
+                                </button>
+                              )}
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <div>
+                                <p className="text-sm text-content-tertiary">Nombre</p>
+                                <p className="font-semibold text-content-primary">{form.full_name}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-content-tertiary">Institución</p>
+                                <p className="font-semibold text-content-primary">{form.institution || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-content-tertiary">Teléfono</p>
+                                <p className="font-semibold text-content-primary">{form.phone}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-content-tertiary">Correo</p>
+                                <p className="font-semibold text-content-primary break-all">{form.email}</p>
+                              </div>
+                            </div>
+                            {form.note && (
+                              <div className="mt-3">
+                                <p className="text-sm text-content-tertiary">Nota</p>
+                                <p className="text-content-primary">{form.note}</p>
+                              </div>
+                            )}
+                            <p className="mt-3 text-xs text-content-tertiary">{new Date(form.created_at).toLocaleString('es-ES')}</p>
+                            {form.approved_at && <p className="text-xs text-content-tertiary">Aprobado: {new Date(form.approved_at).toLocaleString('es-ES')}</p>}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </section>
                 )}
