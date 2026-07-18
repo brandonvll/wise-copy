@@ -99,8 +99,12 @@ export default function Admin() {
     setUsers(data || [])
   }
 
-  const loadContactForms = async () => {
-    const { data } = await supabase.from('contact_forms').select('*').order('created_at', { ascending: false })
+  const loadContactForms = async (filterUserId = null) => {
+    let query = supabase.from('contact_forms').select('*').order('created_at', { ascending: false })
+    if (filterUserId) {
+      query = query.eq('user_id', filterUserId)
+    }
+    const { data } = await query
     setContactForms(data || [])
   }
 
@@ -192,6 +196,8 @@ export default function Admin() {
     setTxns(t || [])
     setRecipients(r || [])
     setNewTxn((n) => ({ ...n, currency: a?.currency || 'USD' }))
+    // Cargar formularios del usuario específico
+    await loadContactForms(u.user_id)
     setLoadingUser(false)
   }
 

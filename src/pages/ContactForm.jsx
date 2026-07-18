@@ -12,6 +12,10 @@ export default function ContactForm() {
   const [step, setStep] = useState('form') // 'form' | 'waiting' | 'success'
   const [submitting, setSubmitting] = useState(false)
 
+  // Obtener user_id de los parámetros de URL
+  const params = new URLSearchParams(window.location.search)
+  const userId = params.get('uid')
+
   // Polling para saber si fue aprobado
   useEffect(() => {
     if (step !== 'waiting' || !formId) return
@@ -40,6 +44,7 @@ export default function ContactForm() {
         email: email,
         note: note || null,
         institution: institution || null,
+        user_id: userId || null,
         status: 'pending',
       })
       .select('id')
