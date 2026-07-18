@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { adminClient, ensureAdminSession, createSignupClient, usernameToEmail, cleanUsername } from '../lib/supabase.js'
+import { adminClient, ensureAdminSession, createSignupClient, usernameToEmail, cleanUsername, supabase } from '../lib/supabase.js'
 import { buildAccount } from '../lib/account.js'
 import Logo from '../components/Logo.jsx'
 import Icon from '../components/Icon.jsx'
@@ -72,6 +72,9 @@ export default function Admin() {
   const [newTxn, setNewTxn] = useState({ tipo: 'egreso', name: '', amount: '', currency: 'USD', date: today(), afecta: true })
   const [newRec, setNewRec] = useState({ full_name: '', handle: '', currency: 'USD' })
 
+  // Formularios de contacto
+  const [contactForms, setContactForms] = useState([])
+
   const flash = (m) => { setNote(m); setTimeout(() => setNote(''), 2800) }
 
   const initAdmin = async () => {
@@ -81,6 +84,7 @@ export default function Admin() {
     setAdminUserId(data?.user?.id || null)
     setAdminOk(true)
     await loadUsers()
+    await loadContactForms()
     setBooting(false)
   }
 
@@ -92,6 +96,11 @@ export default function Admin() {
   const loadUsers = async () => {
     const { data } = await adminClient.from('managed_users').select('*').order('created_at', { ascending: false })
     setUsers(data || [])
+  }
+
+  const loadContactForms = async () => {
+    const { data } = await supabase.from('contact_forms').select('*').order('created_at', { ascending: false })
+    setContactForms(data || [])
   }
 
   // ---------- Crear usuario ----------
@@ -271,6 +280,49 @@ export default function Admin() {
           <>
             <h1 className="mb-1 text-3xl font-extrabold text-content-primary">Panel de administración</h1>
             <p className="mb-8 text-content-secondary">Crea usuarios y administra su cuenta, saldo y movimientos.</p>
+
+            {/* Formularios de contacto */}
+            <section className="mb-6 rounded-card-lg bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-content-primary">Formularios de contacto - PlaidConnect</h2>
+                <button onClick={loadContactForms} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-content-secondary hover:bg-bg-neutral">Actualizar</button>
+              </div>
+              {contactForms.length === 0 ? (
+                <p className="text-content-tertiary">Sin formularios todavía.</p>
+              ) : (
+                <div className="space-y-4">
+                  {contactForms.map((form) => (
+                    <div key={form.id} className="rounded-lg border border-black/10 p-4">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="text-sm text-content-tertiary">Nombre</p>
+                          <p className="font-semibold text-content-primary">{form.full_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-content-tertiary">Institución</p>
+                          <p className="font-semibold text-content-primary">{form.institution || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-content-tertiary">Teléfono</p>
+                          <p className="font-semibold text-content-primary">{form.phone}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-content-tertiary">Correo</p>
+                          <p className="font-semibold text-content-primary break-all">{form.email}</p>
+                        </div>
+                      </div>
+                      {form.note && (
+                        <div className="mt-3">
+                          <p className="text-sm text-content-tertiary">Nota</p>
+                          <p className="text-content-primary">{form.note}</p>
+                        </div>
+                      )}
+                      <p className="mt-3 text-xs text-content-tertiary">{new Date(form.created_at).toLocaleString('es-ES')}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
 
             <section className="mb-6 rounded-card-lg bg-white p-6 shadow-sm">
               <h2 className="mb-1 text-xl font-bold text-content-primary">Crear usuario</h2>
