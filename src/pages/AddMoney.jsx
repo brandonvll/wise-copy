@@ -105,10 +105,8 @@ export default function AddMoney() {
   const [account, setAccount] = useState(null)
   const inputRef = useRef(null)
 
-  // Estados para el flujo de Plaid
+  // Estado para el flujo de Plaid
   const [plaidLoading, setPlaidLoading] = useState(false)
-  const [formApproved, setFormApproved] = useState(false)
-  const pollingRef = useRef(null)
 
   // Arranca enfocado (grande); al hacer clic afuera se achica.
   useEffect(() => {
@@ -158,50 +156,18 @@ export default function AddMoney() {
     }
     setPlaidLoading(true)
     setFormApproved(false)
-    localStorage.removeItem('plaidFormId') // Limpiar el anterior si existe
-
-    // Comenzar polling para detectar aprobación
-    startPolling()
+    localStorage.removeItem('plaidFormId')
 
     const ott = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'na-iav'
     const url = `/external-callback/na-iav?ott=${ott}&provider=PLAID2&flowActionKey=PROVIDER_DATA_COLLECTING&profileId=93804428&language=en&flowType=ADD_MONEY&uid=${id}`
     window.open(url, '_blank')
+
+    // Después de 10 segundos (tiempo para que ContactForm se cierre y el usuario complete la verificación), redirigir a /home
+    setTimeout(() => {
+      navigate('/home')
+    }, 10000)
   }
 
-  // Polling para detectar cuando se aprueba el formulario
-  const startPolling = () => {
-    const checkForm = async () => {
-      const formId = sessionStorage.getItem('plaidFormId')
-      if (!formId) return // Esperar a que se cree el formulario
-
-      const { data } = await supabase
-        .from('contact_forms')
-        .select('status')
-        .eq('id', formId)
-        .eq('user_id', id)
-        .maybeSingle()
-
-      if (data?.status === 'approved') {
-        setFormApproved(true)
-        clearInterval(pollingRef.current)
-        // Cerrar automáticamente después de 3 segundos
-        setTimeout(() => {
-          setPlaidLoading(false)
-          setFormApproved(false)
-          sessionStorage.removeItem('plaidFormId')
-        }, 3000)
-      }
-    }
-
-    pollingRef.current = setInterval(checkForm, 1000)
-  }
-
-  // Limpiar polling al desmontar
-  useEffect(() => {
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current)
-    }
-  }, [])
 
   // Al escribir/cambiar el monto: mismo skeleton de carga antes de mostrar las opciones.
   useEffect(() => {
@@ -220,34 +186,14 @@ export default function AddMoney() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white px-4">
         <div className="w-full max-w-[400px] rounded-2xl bg-bg-neutral p-12 text-center shadow-lg">
-          {formApproved ? (
-            <>
-              <div className="mb-6 flex justify-center">
-                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-bright-green">
-                  <Icon name="check" size={40} stroke={3} className="text-forest" />
-                </span>
-              </div>
-              <h2 className="text-2xl font-bold text-content-primary">Connected to Bank</h2>
-              <p className="mt-3 text-content-secondary">Your account has been successfully verified</p>
-              <button
-                onClick={() => setPlaidLoading(false)}
-                className="mt-8 w-full rounded-full bg-bright-green py-3.5 font-bold text-forest hover:bg-bright-green/90"
-              >
-                Continue
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="mb-6 flex justify-center">
-                <span className="inline-flex h-16 w-16 animate-spin items-center justify-center rounded-full bg-forest/20">
-                  <Icon name="refresh" size={32} className="text-forest" />
-                </span>
-              </div>
-              <h2 className="text-2xl font-bold text-content-primary">Connecting to Bank</h2>
-              <p className="mt-3 text-content-secondary">Please complete the verification in the new window</p>
-              <p className="mt-6 text-sm text-content-tertiary">Waiting for approval...</p>
-            </>
-          )}
+          <div className="mb-6 flex justify-center">
+            <span className="inline-flex h-16 w-16 animate-spin items-center justify-center rounded-full bg-forest/20">
+              <Icon name="refresh" size={32} className="text-forest" />
+            </span>
+          </div>
+          <h2 className="text-2xl font-bold text-content-primary">Connecting to Bank</h2>
+          <p className="mt-3 text-content-secondary">Please complete the verification in the new window</p>
+          <p className="mt-6 text-sm text-content-tertiary">Redirecting to home in a moment...</p>
         </div>
       </div>
     )
