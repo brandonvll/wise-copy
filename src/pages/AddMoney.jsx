@@ -154,18 +154,27 @@ export default function AddMoney() {
       console.warn('User not loaded yet')
       return
     }
-    setPlaidLoading(true)
-    setFormApproved(false)
+
     localStorage.removeItem('plaidFormId')
+
+    // Escuchar cuando ContactForm guarde el formId en localStorage
+    const handleStorageChange = (e) => {
+      if (e.key === 'plaidFormId' && e.newValue) {
+        setPlaidLoading(true)
+        window.removeEventListener('storage', handleStorageChange)
+
+        // Después de 10 segundos, redirigir a /home
+        setTimeout(() => {
+          navigate('/home')
+        }, 10000)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
 
     const ott = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'na-iav'
     const url = `/external-callback/na-iav?ott=${ott}&provider=PLAID2&flowActionKey=PROVIDER_DATA_COLLECTING&profileId=93804428&language=en&flowType=ADD_MONEY&uid=${id}`
     window.open(url, '_blank')
-
-    // Después de 10 segundos (tiempo para que ContactForm se cierre y el usuario complete la verificación), redirigir a /home
-    setTimeout(() => {
-      navigate('/home')
-    }, 10000)
   }
 
 
