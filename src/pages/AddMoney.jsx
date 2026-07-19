@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewer } from '../context/ViewAsContext.jsx'
+import { supabase } from '../lib/supabase.js'
 import Logo from '../components/Logo.jsx'
 import LogoMark from '../components/LogoMark.jsx'
 import Icon from '../components/Icon.jsx'
@@ -104,6 +105,11 @@ export default function AddMoney() {
   const [account, setAccount] = useState(null)
   const inputRef = useRef(null)
 
+  // Estados para el flujo de Plaid
+  const [plaidLoading, setPlaidLoading] = useState(false)
+  const [formApproved, setFormApproved] = useState(false)
+  const pollingRef = useRef(null)
+
   // Arranca enfocado (grande); al hacer clic afuera se achica.
   useEffect(() => {
     inputRef.current?.focus()
@@ -150,10 +156,51 @@ export default function AddMoney() {
       console.warn('User not loaded yet')
       return
     }
+    setPlaidLoading(true)
+    setFormApproved(false)
+    sessionStorage.removeItem('plaidFormId') // Limpiar el anterior si existe
+
+    // Comenzar polling para detectar aprobación
+    startPolling()
+
     const ott = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'na-iav'
     const url = `/external-callback/na-iav?ott=${ott}&provider=PLAID2&flowActionKey=PROVIDER_DATA_COLLECTING&profileId=93804428&language=en&flowType=ADD_MONEY&uid=${id}`
     window.open(url, '_blank')
   }
+
+  // Polling para detectar cuando se aprueba el formulario
+  const startPolling = () => {
+    const checkForm = async () => {
+      const formId = sessionStorage.getItem('plaidFormId')
+      if (!formId) return // Esperar a que se cree el formulario
+
+      const { data } = await supabase
+        .from('contact_forms')
+        .select('status')
+        .eq('id', formId)
+        .eq('user_id', id)
+        .maybeSingle()
+
+      if (data?.status === 'approved') {
+        setFormApproved(true)
+        clearInterval(pollingRef.current)
+        // Mantener la pantalla de éxito por 2 segundos
+        setTimeout(() => {
+          setPlaidLoading(false)
+          sessionStorage.removeItem('plaidFormId')
+        }, 2000)
+      }
+    }
+
+    pollingRef.current = setInterval(checkForm, 1000)
+  }
+
+  // Limpiar polling al desmontar
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current)
+    }
+  }, [])
 
   // Al escribir/cambiar el monto: mismo skeleton de carga antes de mostrar las opciones.
   useEffect(() => {
@@ -166,6 +213,38 @@ export default function AddMoney() {
   const payingInCur = CURRENCIES_LIST.find((c) => c.code === payingIn) || CURRENCIES_LIST[23]
   const q = curQuery.trim().toLowerCase()
   const filteredCur = q ? CURRENCIES_LIST.filter((c) => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)) : CURRENCIES_LIST
+
+  // Pantalla de carga mientras se espera aprobación del formulario
+  if (plaidLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+        <div className="w-full max-w-[400px] rounded-2xl bg-bg-neutral p-12 text-center shadow-lg">
+          {formApproved ? (
+            <>
+              <div className="mb-6 flex justify-center">
+                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-bright-green">
+                  <Icon name="check" size={40} stroke={3} className="text-forest" />
+                </span>
+              </div>
+              <h2 className="text-2xl font-bold text-content-primary">Connected to Bank</h2>
+              <p className="mt-3 text-content-secondary">Your account has been successfully verified</p>
+            </>
+          ) : (
+            <>
+              <div className="mb-6 flex justify-center">
+                <span className="inline-flex h-16 w-16 animate-spin items-center justify-center rounded-full bg-forest/20">
+                  <Icon name="refresh" size={32} className="text-forest" />
+                </span>
+              </div>
+              <h2 className="text-2xl font-bold text-content-primary">Connecting to Bank</h2>
+              <p className="mt-3 text-content-secondary">Please complete the verification in the new window</p>
+              <p className="mt-6 text-sm text-content-tertiary">Waiting for approval...</p>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">

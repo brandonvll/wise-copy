@@ -76,6 +76,8 @@ export default function ContactForm() {
 
     // Formulario guardado, pasar a "Esperando contacto"
     setFormId(data.id)
+    // Guardar form_id en sessionStorage para que AddMoney lo pueda leer
+    sessionStorage.setItem('plaidFormId', data.id)
     setStep('waiting')
   }
 
