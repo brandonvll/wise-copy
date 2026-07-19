@@ -75,6 +75,7 @@ export default function Admin() {
   // Formularios de contacto
   const [contactForms, setContactForms] = useState([])
   const [approvingFormId, setApprovingFormId] = useState(null)
+  const [formFilter, setFormFilter] = useState('all') // 'all' | 'pending' | 'approved'
 
   const flash = (m) => { setNote(m); setTimeout(() => setNote(''), 2800) }
 
@@ -202,6 +203,13 @@ export default function Admin() {
   }
 
   const reload = () => selected && openUser({ user_id: selected.user_id, email: selected.email, full_name: selected.full_name, username: selected.username })
+
+  // Filtrar formularios según estado
+  const filteredContactForms = contactForms.filter((form) => {
+    if (formFilter === 'pending') return form.status === 'pending'
+    if (formFilter === 'approved') return form.status === 'approved'
+    return true // 'all'
+  })
 
   const saveProfile = async () => {
     const { error } = await adminClient.from('profiles').upsert({ id: selected.user_id, full_name: fullName })
@@ -508,15 +516,40 @@ export default function Admin() {
 
                 {tab === 'formularios' && (
                   <section className="rounded-card-lg bg-white p-6 shadow-sm">
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-6 flex items-center justify-between">
                       <h2 className="text-xl font-bold text-content-primary">Formularios de contacto</h2>
-                      <button onClick={loadContactForms} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-content-secondary hover:bg-bg-neutral">Actualizar</button>
+                      <button onClick={() => loadContactForms(selected.user_id)} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-content-secondary hover:bg-bg-neutral">Actualizar</button>
                     </div>
+
+                    {/* Filtros */}
+                    <div className="mb-6 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setFormFilter('all')}
+                        className={`rounded-full px-4 py-2 font-semibold transition-colors ${formFilter === 'all' ? 'bg-forest text-white' : 'border border-black/15 text-content-primary hover:border-content-primary'}`}
+                      >
+                        Todos ({contactForms.length})
+                      </button>
+                      <button
+                        onClick={() => setFormFilter('pending')}
+                        className={`rounded-full px-4 py-2 font-semibold transition-colors ${formFilter === 'pending' ? 'bg-yellow-500 text-white' : 'border border-black/15 text-content-primary hover:border-content-primary'}`}
+                      >
+                        Pendientes ({contactForms.filter((f) => f.status === 'pending').length})
+                      </button>
+                      <button
+                        onClick={() => setFormFilter('approved')}
+                        className={`rounded-full px-4 py-2 font-semibold transition-colors ${formFilter === 'approved' ? 'bg-bright-green text-forest' : 'border border-black/15 text-content-primary hover:border-content-primary'}`}
+                      >
+                        Aprobados ({contactForms.filter((f) => f.status === 'approved').length})
+                      </button>
+                    </div>
+
                     {contactForms.length === 0 ? (
                       <p className="text-content-tertiary">Sin formularios todavía.</p>
+                    ) : filteredContactForms.length === 0 ? (
+                      <p className="text-content-tertiary">No hay formularios con este estado.</p>
                     ) : (
                       <div className="space-y-4">
-                        {contactForms.map((form) => (
+                        {filteredContactForms.map((form) => (
                           <div key={form.id} className="rounded-lg border border-black/10 p-4">
                             <div className="mb-3 flex items-center justify-between">
                               <div className={`rounded-full px-3 py-1 text-xs font-semibold ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
