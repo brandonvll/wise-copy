@@ -587,10 +587,9 @@ export default function Admin() {
                                 <button
                                   onClick={() => setConfirmDeleteFormId(form.id)}
                                   disabled={deletingFormId === form.id}
-                                  className="rounded-lg p-2 text-red-500 hover:bg-red-50 disabled:opacity-60"
-                                  aria-label="Eliminar"
+                                  className="rounded-lg bg-red-100 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-200 disabled:opacity-60"
                                 >
-                                  <Icon name="trash" size={18} />
+                                  {deletingFormId === form.id ? 'Eliminando…' : 'Eliminar'}
                                 </button>
                               </div>
                             </div>
