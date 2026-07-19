@@ -228,6 +228,12 @@ export default function AddMoney() {
               </div>
               <h2 className="text-2xl font-bold text-content-primary">Connected to Bank</h2>
               <p className="mt-3 text-content-secondary">Your account has been successfully verified</p>
+              <button
+                onClick={() => setPlaidLoading(false)}
+                className="mt-8 w-full rounded-full bg-bright-green py-3.5 font-bold text-forest hover:bg-bright-green/90"
+              >
+                Continue
+              </button>
             </>
           ) : (
             <>

@@ -230,7 +230,7 @@ export default function ContactForm() {
 
   // ---- ÉXITO ----
   if (step === 'success') {
-    setTimeout(closeWindow, 2000)
+    setTimeout(closeWindow, 5000) // Esperar 5 segundos antes de cerrar
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg-neutral px-4">
         <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-xl text-center">
