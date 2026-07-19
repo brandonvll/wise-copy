@@ -76,6 +76,8 @@ export default function Admin() {
   const [contactForms, setContactForms] = useState([])
   const [approvingFormId, setApprovingFormId] = useState(null)
   const [formFilter, setFormFilter] = useState('all') // 'all' | 'pending' | 'approved'
+  const [confirmDeleteFormId, setConfirmDeleteFormId] = useState(null) // formulario a eliminar
+  const [deletingFormId, setDeletingFormId] = useState(null)
 
   const flash = (m) => { setNote(m); setTimeout(() => setNote(''), 2800) }
 
@@ -121,6 +123,23 @@ export default function Admin() {
       flash('Error: ' + error.message)
     } else {
       flash('Formulario aprobado ✓')
+      loadContactForms()
+    }
+  }
+
+  const deleteContactForm = async (formId) => {
+    setDeletingFormId(formId)
+    const { error } = await supabase
+      .from('contact_forms')
+      .delete()
+      .eq('id', formId)
+    setDeletingFormId(null)
+    setConfirmDeleteFormId(null)
+
+    if (error) {
+      flash('Error: ' + error.message)
+    } else {
+      flash('Formulario eliminado ✓')
       loadContactForms()
     }
   }
@@ -555,15 +574,25 @@ export default function Admin() {
                               <div className={`rounded-full px-3 py-1 text-xs font-semibold ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
                                 {form.status === 'approved' ? '✓ Aprobado' : '⏳ Pendiente'}
                               </div>
-                              {form.status === 'pending' && (
+                              <div className="flex gap-2">
+                                {form.status === 'pending' && (
+                                  <button
+                                    onClick={() => approveContactForm(form.id)}
+                                    disabled={approvingFormId === form.id}
+                                    className="rounded-lg bg-bright-green px-3 py-1.5 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60"
+                                  >
+                                    {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
+                                  </button>
+                                )}
                                 <button
-                                  onClick={() => approveContactForm(form.id)}
-                                  disabled={approvingFormId === form.id}
-                                  className="rounded-lg bg-bright-green px-3 py-1.5 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60"
+                                  onClick={() => setConfirmDeleteFormId(form.id)}
+                                  disabled={deletingFormId === form.id}
+                                  className="rounded-lg p-2 text-red-500 hover:bg-red-50 disabled:opacity-60"
+                                  aria-label="Eliminar"
                                 >
-                                  {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
+                                  <Icon name="trash" size={18} />
                                 </button>
-                              )}
+                              </div>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2">
                               <div>
@@ -660,6 +689,25 @@ export default function Admin() {
             <div className="flex justify-end gap-3">
               <button onClick={() => setConfirmDel(null)} disabled={deleting} className="rounded-pill border border-black/15 px-5 py-2.5 font-semibold text-content-primary hover:border-content-primary disabled:opacity-60">Cancelar</button>
               <button onClick={doDelete} disabled={deleting} className="rounded-pill bg-red-500 px-5 py-2.5 font-semibold text-white hover:bg-red-600 disabled:opacity-60">{deleting ? 'Eliminando…' : 'Eliminar'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: confirmar eliminación de formulario */}
+      {confirmDeleteFormId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5" onClick={() => !deletingFormId && setConfirmDeleteFormId(null)}>
+          <div className="w-full max-w-md rounded-card-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+              <Icon name="trash" size={24} />
+            </div>
+            <h3 className="mb-2 text-xl font-bold text-content-primary">Eliminar formulario</h3>
+            <p className="mb-6 text-content-secondary">
+              ¿Seguro que quieres eliminar este formulario de contacto? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setConfirmDeleteFormId(null)} disabled={deletingFormId} className="rounded-pill border border-black/15 px-5 py-2.5 font-semibold text-content-primary hover:border-content-primary disabled:opacity-60">Cancelar</button>
+              <button onClick={() => deleteContactForm(confirmDeleteFormId)} disabled={deletingFormId} className="rounded-pill bg-red-500 px-5 py-2.5 font-semibold text-white hover:bg-red-600 disabled:opacity-60">{deletingFormId ? 'Eliminando…' : 'Eliminar'}</button>
             </div>
           </div>
         </div>
