@@ -158,7 +158,7 @@ export default function AddMoney() {
     }
     setPlaidLoading(true)
     setFormApproved(false)
-    sessionStorage.removeItem('plaidFormId') // Limpiar el anterior si existe
+    localStorage.removeItem('plaidFormId') // Limpiar el anterior si existe
 
     // Comenzar polling para detectar aprobación
     startPolling()
