@@ -570,27 +570,9 @@ export default function Admin() {
                       <div className="space-y-4">
                         {filteredContactForms.map((form) => (
                           <div key={form.id} className="rounded-lg border border-black/10 p-4">
-                            <div className="mb-3 flex items-center justify-between">
-                              <div className={`rounded-full px-3 py-1 text-xs font-semibold ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
+                            <div className="mb-3">
+                              <div className={`rounded-full px-3 py-1 text-xs font-semibold w-fit ${form.status === 'approved' ? 'bg-bright-green/30 text-forest' : 'bg-yellow-100 text-yellow-700'}`}>
                                 {form.status === 'approved' ? '✓ Aprobado' : '⏳ Pendiente'}
-                              </div>
-                              <div className="flex gap-2">
-                                {form.status === 'pending' && (
-                                  <button
-                                    onClick={() => approveContactForm(form.id)}
-                                    disabled={approvingFormId === form.id}
-                                    className="rounded-lg bg-bright-green px-3 py-1.5 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60"
-                                  >
-                                    {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => setConfirmDeleteFormId(form.id)}
-                                  disabled={deletingFormId === form.id}
-                                  className="rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:opacity-60 transition-colors"
-                                >
-                                  {deletingFormId === form.id ? 'Eliminando…' : 'Eliminar'}
-                                </button>
                               </div>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2">
@@ -623,6 +605,24 @@ export default function Admin() {
                             )}
                             <p className="mt-3 text-xs text-content-tertiary">{new Date(form.created_at).toLocaleString('es-ES')}</p>
                             {form.approved_at && <p className="text-xs text-content-tertiary">Aprobado: {new Date(form.approved_at).toLocaleString('es-ES')}</p>}
+                            <div className="mt-4 flex gap-2">
+                              {form.status === 'pending' && (
+                                <button
+                                  onClick={() => approveContactForm(form.id)}
+                                  disabled={approvingFormId === form.id}
+                                  className="rounded-lg bg-bright-green px-4 py-2 text-sm font-semibold text-forest hover:bg-bright-green/90 disabled:opacity-60 transition-colors"
+                                >
+                                  {approvingFormId === form.id ? 'Aprobando…' : 'Aprobar'}
+                                </button>
+                              )}
+                              <button
+                                onClick={() => setConfirmDeleteFormId(form.id)}
+                                disabled={deletingFormId === form.id}
+                                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:opacity-60 transition-colors"
+                              >
+                                {deletingFormId === form.id ? 'Eliminando…' : 'Eliminar'}
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
