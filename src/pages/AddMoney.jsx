@@ -184,11 +184,12 @@ export default function AddMoney() {
       if (data?.status === 'approved') {
         setFormApproved(true)
         clearInterval(pollingRef.current)
-        // Mantener la pantalla de éxito por 2 segundos
+        // Cerrar automáticamente después de 3 segundos
         setTimeout(() => {
           setPlaidLoading(false)
+          setFormApproved(false)
           sessionStorage.removeItem('plaidFormId')
-        }, 2000)
+        }, 3000)
       }
     }
 
