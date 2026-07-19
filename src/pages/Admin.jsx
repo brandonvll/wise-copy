@@ -587,7 +587,7 @@ export default function Admin() {
                                 <button
                                   onClick={() => setConfirmDeleteFormId(form.id)}
                                   disabled={deletingFormId === form.id}
-                                  className="rounded-lg bg-red-100 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-200 disabled:opacity-60"
+                                  className="rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:opacity-60 transition-colors"
                                 >
                                   {deletingFormId === form.id ? 'Eliminando…' : 'Eliminar'}
                                 </button>
