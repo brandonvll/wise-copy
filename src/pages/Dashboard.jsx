@@ -21,6 +21,9 @@ export default function Dashboard() {
   const [txns, setTxns] = useState([])
   const [loading, setLoading] = useState(true)
   const [showActionModal, setShowActionModal] = useState(false)
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const [downloadFormat, setDownloadFormat] = useState('pdf')
+  const [downloading, setDownloading] = useState(false)
   const modalMsg = account?.modal_message || ACCOUNT_DEFAULTS.modal_message
 
   useEffect(() => {
@@ -41,6 +44,82 @@ export default function Dashboard() {
 
   const currency = account?.currency || 'USD'
   const balance = account?.balance ?? 0
+
+  const downloadStatement = async () => {
+    setDownloading(true)
+    try {
+      if (downloadFormat === 'pdf') {
+        // Generar PDF
+        const { jsPDF } = await import('jspdf')
+        const doc = new jsPDF()
+
+        // Header
+        doc.setFillColor(76, 175, 80)
+        doc.rect(0, 0, 210, 30, 'F')
+        doc.setTextColor(255, 255, 255)
+        doc.setFontSize(20)
+        doc.text('Wise US Inc.', 15, 15)
+
+        // Información de empresa
+        doc.setTextColor(0, 0, 0)
+        doc.setFontSize(10)
+        doc.text('30 W 26th Street, Floor 6', 15, 40)
+        doc.text('New York 10010', 15, 46)
+        doc.text('United States', 15, 52)
+
+        // Título
+        doc.setFontSize(16)
+        doc.text('Account Statement', 15, 70)
+
+        // Información de la cuenta
+        doc.setFontSize(10)
+        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        doc.text(`Generated on: ${today}`, 15, 85)
+
+        doc.text('Account Holder', 15, 100)
+        doc.text(account?.full_name || 'User', 15, 107)
+
+        doc.text('Currency', 120, 100)
+        doc.text(currency, 120, 107)
+
+        doc.text('Current Balance', 15, 120)
+        doc.setFontSize(14)
+        doc.text(`${SYMBOL[currency]}${fmt(balance)}`, 15, 130)
+
+        // Footer
+        doc.setFontSize(8)
+        doc.setTextColor(100, 100, 100)
+        doc.text('This is not an official statement.', 15, 270)
+        doc.text('Wise Payments Limited is registered in England and Wales with Companies House', 15, 275)
+
+        doc.save(`statement-${currency}-${new Date().toISOString().split('T')[0]}.pdf`)
+      } else {
+        // Generar CSV
+        const headers = ['Date', 'Description', 'Amount', 'Currency', 'Balance']
+        const rows = txns.map(t => [
+          new Date(t.date).toLocaleDateString('en-US'),
+          t.name,
+          t.amount,
+          t.currency || currency,
+          balance
+        ])
+
+        const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
+        const blob = new Blob([csv], { type: 'text/csv' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `statement-${currency}-${new Date().toISOString().split('T')[0]}.csv`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      }
+      setShowDownloadModal(false)
+    } catch (error) {
+      console.error('Error downloading statement:', error)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <AppLayout>
@@ -65,13 +144,17 @@ export default function Dashboard() {
               <span className="text-2xl font-bold text-content-primary">Cuenta principal</span>
               <Icon name="chevronRight" size={20} className="text-content-tertiary" />
             </div>
-            <div className="mb-6 flex items-center gap-3">
+            <button
+              onClick={() => setShowDownloadModal(true)}
+              className="mb-6 flex w-full items-center gap-3 rounded-lg p-2 hover:bg-black/5 transition-colors"
+              title="Click to download statement"
+            >
               <span className="h-7 w-7 overflow-hidden rounded-full">
                 <img src={`https://flagcdn.com/w80/${FLAG[currency] || 'us'}.png`} alt="" className="h-full w-full object-cover" />
               </span>
-              <span className="text-lg font-bold text-content-primary">{SYMBOL[currency] || ''}{fmt(balance)}</span>
+              <span className="text-lg font-bold text-content-primary cursor-pointer">{SYMBOL[currency] || ''}{fmt(balance)}</span>
               <Icon name="chevronRight" size={16} className="text-content-tertiary" />
-            </div>
+            </button>
             <Link to="/payments/account-details" className="flex items-center gap-2 rounded-pill bg-white px-4 py-2.5 font-semibold text-content-primary shadow-sm">
               <Icon name="bank" size={18} /> Datos de la cuenta
             </Link>
@@ -129,6 +212,71 @@ export default function Dashboard() {
             </div>
             <p className="mb-6 whitespace-pre-line text-content-primary">{modalMsg}</p>
             <button onClick={() => setShowActionModal(false)} className="btn-primary w-full py-3">Entendido</button>
+          </div>
+        </div>
+      )}
+
+      {showDownloadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-5" onClick={() => setShowDownloadModal(false)}>
+          <div className="w-full max-w-md rounded-card-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-content-primary">Download your statement</h3>
+              <button onClick={() => setShowDownloadModal(false)} className="text-content-tertiary hover:text-content-primary">
+                <Icon name="x" size={24} />
+              </button>
+            </div>
+
+            <p className="mb-6 text-sm text-content-secondary">
+              This document will include your current balance and transaction history for the selected period.
+            </p>
+
+            <div className="mb-6 space-y-3">
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-black/10 p-4 hover:bg-black/2" onClick={() => setDownloadFormat('pdf')}>
+                <input
+                  type="radio"
+                  name="format"
+                  value="pdf"
+                  checked={downloadFormat === 'pdf'}
+                  onChange={(e) => setDownloadFormat(e.target.value)}
+                  className="h-4 w-4 cursor-pointer accent-forest"
+                />
+                <div>
+                  <p className="font-semibold text-content-primary">PDF</p>
+                  <p className="text-xs text-content-tertiary">Professional document format</p>
+                </div>
+              </label>
+
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-black/10 p-4 hover:bg-black/2" onClick={() => setDownloadFormat('csv')}>
+                <input
+                  type="radio"
+                  name="format"
+                  value="csv"
+                  checked={downloadFormat === 'csv'}
+                  onChange={(e) => setDownloadFormat(e.target.value)}
+                  className="h-4 w-4 cursor-pointer accent-forest"
+                />
+                <div>
+                  <p className="font-semibold text-content-primary">CSV</p>
+                  <p className="text-xs text-content-tertiary">Spreadsheet-compatible format</p>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="flex-1 rounded-lg border-2 border-black/15 px-4 py-3 font-semibold text-content-primary hover:bg-black/2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={downloadStatement}
+                disabled={downloading}
+                className="flex-1 rounded-lg bg-forest px-4 py-3 font-bold text-white hover:bg-forest/90 disabled:opacity-60"
+              >
+                {downloading ? 'Downloading…' : 'Download'}
+              </button>
+            </div>
           </div>
         </div>
       )}
