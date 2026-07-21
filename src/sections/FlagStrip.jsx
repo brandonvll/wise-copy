@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from '../components/Icon.jsx'
 
-// Banderas que ruedan con el scroll (como en wise.com).
+// Banderas que ruedan con el scroll
 // La flecha va EMBEBIDA dentro del extremo derecho de la barra verde; toda la
 // fila se desplaza junta y las banderas giran como ruedas.
 const flags = ['co', 'eu', 'gb', 'us', 'in', 'my', 'rs', 'br', 'au', 'jp', 'mx', 'es', 'ca', 'fr', 'it', 'kr']
