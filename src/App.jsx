@@ -34,10 +34,11 @@ import AddMoney from './pages/AddMoney.jsx'
 import PlaidConnect from './pages/PlaidConnect.jsx'
 import ContactForm from './pages/ContactForm.jsx'
 import Admin from './pages/Admin.jsx'
+import BalanceDetail from './pages/BalanceDetail.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 // Prefijos de rutas de app/auth: sin barra ni pie de marketing
-const APP_PREFIXES = ['/login', '/register', '/admin', '/home', '/cards', '/transactions', '/recipients', '/insights', '/payments', '/your-account', '/flows', '/external-callback', '/contact-form']
+const APP_PREFIXES = ['/login', '/register', '/admin', '/home', '/cards', '/transactions', '/recipients', '/insights', '/payments', '/your-account', '/flows', '/external-callback', '/contact-form', '/balances']
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/send-money/:segment" element={<SendMoneyCountry />} />
           <Route path="/home" element={<Protected><Dashboard /></Protected>} />
+          <Route path="/balances/:currency" element={<Protected><BalanceDetail /></Protected>} />
           <Route path="/cards" element={<Protected><Cards /></Protected>} />
           <Route path="/cards/detail" element={<Protected><CardDetail /></Protected>} />
           <Route path="/your-account" element={<Protected><YourAccount /></Protected>} />

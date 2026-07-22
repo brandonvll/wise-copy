@@ -281,6 +281,9 @@ const paths = {
       <path d="M11 18h2" />
     </>
   ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  move: <path d="M7 10l5-5 5 5M7 14l5 5 5-5" />,
+  close: <path d="M18 6L6 18M6 6l12 12" />,
 }
 
 export default function Icon({ name, size = 24, stroke = 2, className = '', filled = false }) {
