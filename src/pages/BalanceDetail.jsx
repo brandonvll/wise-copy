@@ -90,30 +90,6 @@ export default function BalanceDetail() {
         const pageW = doc.internal.pageSize.getWidth()
         const pageH = doc.internal.pageSize.getHeight()
 
-        // Draw watermarks BEFORE content so they sit behind text
-        const addWatermark = () => {
-          doc.saveGraphicsState()
-          doc.setTextColor(235, 235, 235) // very light, transparent-looking
-          doc.setFontSize(42)
-          const text = 'This is not an official statement'
-          // Centered watermarks at 3 vertical positions
-          const positions = [
-            { x: pageW / 2, y: pageH * 0.30 },
-            { x: pageW / 2, y: pageH * 0.55 },
-            { x: pageW / 2, y: pageH * 0.80 },
-          ]
-          for (const pos of positions) {
-            doc.text(text, pos.x, pos.y, {
-              align: 'center',
-              angle: 45,
-              renderingMode: 'fill',
-            })
-          }
-          doc.restoreGraphicsState()
-        }
-
-        // Draw watermark first so it's behind all content
-        addWatermark()
 
         // ── Page 1: Header ──
         // Render the exact Wise SVG logo from Logo.jsx as an image
@@ -239,7 +215,6 @@ export default function BalanceDetail() {
           if (yPos > pageH - 40) {
             addPageNumber()
             doc.addPage()
-            addWatermark() // draw watermark first on new page
             pageNum++
             yPos = 20
           }
@@ -261,7 +236,6 @@ export default function BalanceDetail() {
             if (yPos > pageH - 30) {
               addPageNumber()
               doc.addPage()
-              addWatermark() // draw watermark first on new page
               pageNum++
               yPos = 20
             }
@@ -300,7 +274,7 @@ export default function BalanceDetail() {
           }
         }
 
-        // Final page number (watermark already drawn on this page)
+        // Final page number
         addPageNumber()
 
         doc.save(`exported-activities-${new Date().toISOString().split('T')[0]}.pdf`)
